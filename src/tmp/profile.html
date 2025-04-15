@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #fff;
+      padding: 20px;
+    }
+
+    .back-button {
+      font-size: 20px;
+      margin-bottom: 10px;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-item {
+      background: #eee;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .section {
+      background: #ddd;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .account-data {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .circle-placeholder {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #ccc;
+    }
+
+    .analysis-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 40px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 5px;
+    }
+
+    .bubble-analysis {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+
+    .bubble {
+      width: 40px;
+      height: 40px;
+      background: #ccc;
+      border-radius: 50%;
+    }
+
+    .grid-section {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .pie-chart-placeholder {
+      width: 200px;
+      height: 200px;
+      background: #ddd;
+      border-radius: 50%;
+      margin: auto;
+    }
+
+    .bars {
+      margin-top: 20px;
+    }
+
+    .bar {
+      background: #eee;
+      margin: 8px 0;
+      height: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="back-button">←</div>
+
+  <div class="filters">
+    <div class="filter-item">Filter 1</div>
+    <div class="filter-item">Filter 2</div>
+    <div class="filter-item">Filter 3</div>
+    <div class="filter-item">Filter 4</div>
+    <div class="filter-item">More ▼</div>
+  </div>
+
+  <div class="section">
+    <div class="account-data">
+      <div class="circle-placeholder"></div>
+      <div>
+        <p>Name: John Doe</p>
+        <p>Status: Active</p>
+        <p>Plan: Premium</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p><strong>Account Summary</strong></p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio.</p>
+    <p>Suspendisse potenti. Nullam quis risus eget urna mollis ornare vel eu leo.</p>
+  </div>
+
+  <div class="analysis-title">Analysis</div>
+
+  <div class="bubble-analysis">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <div class="grid-section">
+    <div class="section">
+      <p><strong>Pie Chart Data</strong></p>
+      <div class="pie-chart-placeholder"></div>
+    </div>
+    <div class="section">
+      <p><strong>Details</strong></p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      <p>Aliquam at porttitor sem. Aliquam erat volutpat.</p>
+    </div>
+  </div>
+
+  <div class="bars">
+    <div class="bar">Detail A <span>+</span></div>
+    <div class="bar">Detail B <span>+</span></div>
+    <div class="bar">Detail C <span>+</span></div>
+    <div class="bar">Detail D <span>+</span></div>
+  </div>
+</body>
+
+</html>

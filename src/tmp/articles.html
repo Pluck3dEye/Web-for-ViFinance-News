@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relevant Articles</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f4f4;
+    }
+
+    header {
+      background: #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+    }
+
+    .menu-icon,
+    .search,
+    .nav-buttons,
+    .close-icon {
+      display: flex;
+      align-items: center;
+    }
+
+    .search input {
+      padding: 5px;
+    }
+
+    .nav-buttons button {
+      margin-left: 10px;
+      padding: 8px 12px;
+      background-color: pink;
+      border: none;
+      cursor: pointer;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .divider {
+      width: 60%;
+      margin: 10px auto;
+      height: 3px;
+      background: black;
+    }
+
+    .intro-text,
+    .article {
+      background: #ddd;
+      margin: 20px auto;
+      padding: 15px;
+      width: 80%;
+    }
+
+    .article {
+      display: flex;
+    }
+
+    .article img {
+      width: 150px;
+      height: 100px;
+      margin-right: 20px;
+      background: white;
+    }
+
+    .article-text {
+      flex-grow: 1;
+    }
+
+    footer {
+      height: 20px;
+      background: #ccc;
+      text-align: center;
+      padding: 10px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="menu-icon">☰</div>
+    <div class="search">
+      <input type="text" placeholder="Search..." />
+    </div>
+    <div class="nav-buttons">
+      <button>Home</button>
+      <button>About Us</button>
+    </div>
+    <div class="close-icon">✕</div>
+  </header>
+
+  <h1>Relevant Articles</h1>
+  <div class="divider"></div>
+
+  <div class="intro-text">
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec nisl odio.</p>
+    <p>Maecenas facilisis nisi vel nulla convallis, vel vehicula velit tincidunt.</p>
+  </div>
+
+  <!-- Articles List -->
+  <div class="article">
+    <img src="https://via.placeholder.com/150" alt="Article Thumbnail" />
+    <div class="article-text">
+      <p><strong>Article Title</strong></p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      <p>Read more...</p>
+    </div>
+  </div>
+  <div class="article">
+    <img src="https://via.placeholder.com/150" alt="Article Thumbnail" />
+    <div class="article-text">
+      <p><strong>Article Title</strong></p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      <p>Read more...</p>
+    </div>
+  </div>
+  <div class="article">
+    <img src="https://via.placeholder.com/150" alt="Article Thumbnail" />
+    <div class="article-text">
+      <p><strong>Article Title</strong></p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      <p>Read more...</p>
+    </div>
+  </div>
+  <div class="article">
+    <img src="https://via.placeholder.com/150" alt="Article Thumbnail" />
+    <div class="article-text">
+      <p><strong>Article Title</strong></p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      <p>Read more...</p>
+    </div>
+  </div>
+  <div class="article">
+    <img src="https://via.placeholder.com/150" alt="Article Thumbnail" />
+    <div class="article-text">
+      <p><strong>Article Title</strong></p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      <p>Read more...</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="divider"></div>
+  </footer>
+</body>
+
+</html>

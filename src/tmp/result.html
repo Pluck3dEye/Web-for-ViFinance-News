@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Article Analysis</title>
+  <!-- <link rel="stylesheet" href="styles.css" /> -->
+  <style>
+  body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+}
+
+.main-content {
+  flex: 2;
+}
+
+.sidebar {
+  flex: 1;
+}
+
+section {
+  margin-bottom: 30px;
+}
+
+h2, h3 {
+  margin-bottom: 10px;
+}
+
+.box, .image-box, .result-line, .tag, .link-placeholder {
+  background: #e0e0e0;
+  border-radius: 5px;
+}
+
+.box {
+  height: 150px;
+}
+
+.image-box {
+  height: 250px;
+  margin-top: 20px;
+}
+
+.tag-box, .result-box {
+  background: #e0e0e0;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.tags {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tag {
+  background: #fff;
+  height: 15px;
+  border-radius: 3px;
+}
+
+.link-placeholder {
+  background: #fff;
+  height: 15px;
+  width: 60%;
+  margin: auto;
+  border-radius: 3px;
+}
+
+.result-line {
+  height: 15px;
+  background: #fff;
+  margin-bottom: 8px;
+  border-radius: 3px;
+}
+
+.footer-bar {
+  background: #ccc;
+  height: 5px;
+  margin-top: 30px;
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Left Column -->
+    <div class="main-content">
+      <section>
+        <h2>Summary</h2>
+        <div class="box"></div>
+      </section>
+
+      <section>
+        <h2>Bias Analysis</h2>
+        <div class="box"></div>
+      </section>
+
+      <section>
+        <h2>Reliability Analysis</h2>
+        <div class="box"></div>
+      </section>
+
+      <div class="image-box"></div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="sidebar">
+      <div class="tag-box">
+        <h3>Possible Tag</h3>
+        <div class="tags">
+          <div class="tag"></div>
+          <div class="tag"></div>
+          <div class="tag"></div>
+          <div class="tag"></div>
+          <div class="tag"></div>
+        </div>
+        <div class="link-placeholder"></div>
+      </div>
+
+      <div class="result-box">
+        <h3>General Result</h3>
+        <div class="result-line"></div>
+        <div class="result-line"></div>
+        <div class="result-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer-bar"></footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

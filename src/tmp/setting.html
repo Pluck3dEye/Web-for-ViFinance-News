@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #f9f9f9;
+    }
+    .sidebar {
+      width: 120px;
+      background: #ddd;
+      padding: 10px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar div {
+      width: 80%;
+      height: 30px;
+      background: #ccc;
+      border-radius: 5px;
+    }
+    .main {
+      flex: 1;
+      padding: 20px;
+    }
+    .back-button {
+      font-size: 20px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    h2 {
+      background: #ddd;
+      display: inline-block;
+      padding: 5px 10px;
+    }
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 15px 0;
+      background: #eee;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 20px;
+      background: #ccc;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .toggle::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #333;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    .toggle.active {
+      background: #4caf50;
+    }
+    .toggle.active::before {
+      transform: translateX(20px);
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+  </div>
+  <div class="main">
+    <div class="back-button">&#8592;</div>
+    <h2>Action Button</h2>
+
+    <div class="setting-row">
+      <div class="desc">Setting Option 1</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="setting-row">
+      <div class="desc">Setting Option 2</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="setting-row">
+      <div class="desc">Setting Option 3</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="setting-row">
+      <div class="desc">Setting Option 4</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="setting-row">
+      <div class="desc">Setting Option 5</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="setting-row">
+      <div class="desc">Setting Option 6</div>
+      <div class="toggle"></div>
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll('.toggle').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('active');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Dashboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #fff;
+    }
+
+    .back-btn {
+      font-size: 24px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filters div,
+    .dropdown {
+      background: #ddd;
+      padding: 8px 12px;
+      border-radius: 4px;
+      min-width: 100px;
+    }
+
+    .dashboard {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .account-info {
+      width: 250px;
+    }
+
+    .profile-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #ccc;
+      margin: 10px auto;
+    }
+
+    .account-details,
+    .action-buttons,
+    .account-box {
+      background: #ddd;
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    .summary {
+      flex: 1;
+    }
+
+    .summary .top-icons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .summary .top-icons div {
+      width: 20px;
+      height: 20px;
+      background: #bbb;
+    }
+
+    .summary-box {
+      background: #ddd;
+      padding: 20px;
+      margin-top: 10px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      border-bottom: 1px solid #000;
+      margin-top: 40px;
+      padding-bottom: 5px;
+    }
+
+    .analysis-tabs {
+      background: #ddd;
+      padding: 10px;
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .bubbles {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+    }
+
+    .bubble {
+      width: 40px;
+      height: 40px;
+      background: #ccc;
+      border-radius: 50%;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .pie-section,
+    .text-section {
+      background: #ddd;
+      padding: 20px;
+    }
+
+    .pie-chart {
+      width: 180px;
+      height: 180px;
+      background: #ccc;
+      border-radius: 50%;
+      margin: auto;
+    }
+
+    .dropdown-small {
+      text-align: right;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .expandable {
+      background: #eee;
+      margin: 8px 0;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="back-btn">&#8592;</div>
+
+  <div class="filters">
+    <div>Filter 1</div>
+    <div>Filter 2</div>
+    <div>Filter 3</div>
+    <div>Filter 4</div>
+    <div>Filter 5</div>
+    <div class="dropdown">Dropdown</div>
+  </div>
+
+  <div class="dashboard">
+    <div class="account-info">
+      <div class="account-details">Account Data</div>
+      <div class="profile-img"></div>
+      <div class="action-buttons">Button 1</div>
+      <div class="action-buttons">Button 2</div>
+      <div class="account-box">Card Box</div>
+    </div>
+    <div class="summary">
+      <div class="top-icons">
+        <div></div>
+        <div></div>
+      </div>
+      <div class="summary-box">
+        <p>Account Summary Lines</p>
+        <p>Line 2</p>
+        <p>Line 3</p>
+        <p>Line 4</p>
+        <p>Line 5</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Analysis</div>
+  <div class="analysis-tabs">Tab 1 | Tab 2 | Tab 3</div>
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <div class="content-grid">
+    <div class="pie-section">
+      <div>Pie Chart Title</div>
+      <div class="pie-chart"></div>
+      <div class="dropdown-small">▼</div>
+    </div>
+    <div class="text-section">
+      <div>Data Overview</div>
+      <p>Line A</p>
+      <p>Line B</p>
+      <p>Line C</p>
+      <p>Line D</p>
+      <p>Line E</p>
+    </div>
+  </div>
+
+  <div class="expandable">Item A <span>+</span></div>
+  <div class="expandable">Item B <span>+</span></div>
+  <div class="expandable">Item C <span>+</span></div>
+  <div class="expandable">Item D <span>+</span></div>
+
+</body>
+
+</html>

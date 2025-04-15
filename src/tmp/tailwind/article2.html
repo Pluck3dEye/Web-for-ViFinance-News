@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relevant Articles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="font-sans bg-gray-100 text-gray-800">
+  <!-- Header -->
+  <header class="bg-gray-300 px-6 py-4 flex flex-wrap items-center justify-between">
+    <div class="text-xl cursor-pointer">☰</div>
+    <div class="flex-grow mx-4 max-w-md">
+      <input type="text" placeholder="Search..." class="w-full px-3 py-2 border border-gray-400 rounded" />
+    </div>
+    <nav class="flex space-x-3">
+      <button class="px-4 py-2 bg-pink-400 text-white rounded hover:bg-pink-500 transition">Home</button>
+      <button class="px-4 py-2 bg-pink-400 text-white rounded hover:bg-pink-500 transition">About Us</button>
+    </nav>
+    <div class="text-xl cursor-pointer">✕</div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="px-4 py-6">
+    <h1 class="text-center text-3xl font-bold mb-4">Relevant Articles</h1>
+    <div class="w-3/5 mx-auto h-1 bg-black mb-6"></div>
+
+    <!-- Introduction -->
+    <section class="bg-gray-200 w-4/5 mx-auto p-5 rounded shadow">
+      <p class="mb-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur nec nisl odio.</p>
+      <p>Maecenas facilisis nisi vel nulla convallis, vel vehicula velit tincidunt.</p>
+    </section>
+
+    <!-- Articles List -->
+    <section class="mt-8 space-y-6 w-4/5 mx-auto">
+      <!-- Article Card Component -->
+      <!-- You can extract this to a component in a framework later -->
+      <!-- Repeat this for each article -->
+      <article class="flex bg-white p-4 rounded shadow hover:shadow-md transition">
+        <img src="https://via.placeholder.com/150" alt="Article Thumbnail" class="w-[150px] h-[100px] object-cover mr-5 rounded" />
+        <div>
+          <h2 class="font-semibold text-lg mb-1">Article Title</h2>
+          <p class="text-sm mb-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          <a href="#" class="text-blue-500 hover:underline text-sm">Read more...</a>
+        </div>
+      </article>
+
+      <!-- Repeat the article cards as needed -->
+      <!-- Could also map dynamically in a framework -->
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-300 text-center py-4 mt-10">
+    <div class="w-3/5 mx-auto h-1 bg-black mb-2"></div>
+    <p class="text-sm text-gray-600">© 2025 Relevant Articles. All rights reserved.</p>
+  </footer>
+</body>
+
+</html>
