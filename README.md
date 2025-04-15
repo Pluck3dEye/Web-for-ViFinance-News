@@ -16,22 +16,26 @@ A brief description of your project and what it does.
 
 Instructions on how to get the project up and running:
 
+
+- Clone the repo
 ```bash
-# Clone the repo
-git clone https://github.com/your-username/your-repo.git
+git clone https://github.com/Pluck3dEye/Web-for-ViFinance-News.git
+```
+- Go into the project directory
+```bash
+cd Web-for-ViFinance-News
+```
 
-# Go into the project directory
-cd your-repo
+- Install dependencies (if applicable)
+```bash
+npm install 
+pip install -r requirements.txt 
+```
 
-# Install dependencies (if applicable)
-npm install / pip install -r requirements.txt / etc.
-
-# Run the app
-npm start / python app.py / etc.
-
-
-
-
+- Run the app
+```bash
+npm run dev
+```
 
 
 # React + Vite
