@@ -1,3 +1,39 @@
+# Web for ViFinance News
+
+A brief description of your project and what it does.
+
+## 📸 Demo (Optional)
+
+[Insert screenshots, GIFs, or link to a live demo here]
+
+## 🚀 Features
+
+- Feature 1
+- Feature 2
+- Feature 3
+
+## 🛠️ Installation
+
+Instructions on how to get the project up and running:
+
+```bash
+# Clone the repo
+git clone https://github.com/your-username/your-repo.git
+
+# Go into the project directory
+cd your-repo
+
+# Install dependencies (if applicable)
+npm install / pip install -r requirements.txt / etc.
+
+# Run the app
+npm start / python app.py / etc.
+
+
+
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
