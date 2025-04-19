@@ -1,6 +1,6 @@
 # Web for ViFinance News
 
-A brief description of your project and what it does.
+This is a web-app build for [the course project of CS3332](https://github.com/DTJ-Tran/VifinanceNews)
 
 ## 📸 Demo (Optional)
 
