@@ -5,13 +5,13 @@
     --color-dark-a0: #000000;
     --color-light-a0: #ffffff;
     
-    /** Theme primary colors */
-    --color-primary-a0: #ffb300;
-    --color-primary-a10: #f2ad26;
-    --color-primary-a20: #e4a738;
-    --color-primary-a30: #d7a246;
-    --color-primary-a40: #ca9c52;
-    --color-primary-a50: #bc965c;
+    /** Theme primary colors (Lime) */
+    --color-primary-a0: #14c400;
+    --color-primary-a10: #4acb35;
+    --color-primary-a20: #69d253;
+    --color-primary-a30: #82d96d;
+    --color-primary-a40: #99e086;
+    --color-primary-a50: #afe79e;
     
     /** Theme surface colors */
     --color-surface-a0: #ffffff;
@@ -22,22 +22,22 @@
     --color-surface-a50: #b6b6b6;
     
     /** Theme tonal surface colors */
-    --color-surface-tonal-a0: #fff7e9;
-    --color-surface-tonal-a10: #f0e9dd;
-    --color-surface-tonal-a20: #e1dbd1;
-    --color-surface-tonal-a30: #d3cec5;
-    --color-surface-tonal-a40: #c5c0b9;
-    --color-surface-tonal-a50: #b7b3ad;
+    --color-surface-tonal-a0: #f7fee7; /* light lime tint */
+    --color-surface-tonal-a10: #ecfccb;
+    --color-surface-tonal-a20: #d9f99d;
+    --color-surface-tonal-a30: #bef264;
+    --color-surface-tonal-a40: #a3e635;
+    --color-surface-tonal-a50: #84cc16;
     
     /* vDark */
     
-    /** Theme primary color-darks */
-    --color-dark-primary-a0: #ffb300;
-    --color-dark-primary-a10: #ffbb37;
-    --color-dark-primary-a20: #ffc454;
-    --color-dark-primary-a30: #ffcc6e;
-    --color-dark-primary-a40: #ffd487;
-    --color-dark-primary-a50: #ffdd9f;
+    /** Theme primary color-darks (Lime) */
+    --color-dark-primary-a0: #14c400;
+    --color-dark-primary-a10: #4acb35;
+    --color-dark-primary-a20: #69d253;
+    --color-dark-primary-a30: #82d96d;
+    --color-dark-primary-a40: #99e086;
+    --color-dark-primary-a50: #afe79e;
     
     /** Theme surface color-darks */
     --color-dark-surface-a0: #121212;
@@ -48,10 +48,10 @@
     --color-dark-surface-a50: #8b8b8b;
     
     /** Theme tonal surface color-darks */
-    --color-dark-surface-tonal-a0: #272016;
-    --color-dark-surface-tonal-a10: #3c352b;
-    --color-dark-surface-tonal-a20: #514b42;
-    --color-dark-surface-tonal-a30: #68625a;
-    --color-dark-surface-tonal-a40: #7f7a73;
-    --color-dark-surface-tonal-a50: #98938e;
-    }
+    --color-dark-surface-tonal-a0: #1a2e05;
+    --color-dark-surface-tonal-a10: #365314;
+    --color-dark-surface-tonal-a20: #4d7c0f;
+    --color-dark-surface-tonal-a30: #65a30d;
+    --color-dark-surface-tonal-a40: #84cc16;
+    --color-dark-surface-tonal-a50: #a3e635;
+}

@@ -9,6 +9,9 @@ import HiddenSideNavBar from './components/HiddenSideNavBar.jsx';
 import RelevantArticles from './components/RelevantArticles.jsx';
 import AuthTabs from './components/AuthTabs.jsx';
 import UserProfilePage from './components/UserProfilePage.jsx';
+import AnalysisPage from './components/AnalysisPage.jsx';
+import SettingsPage from './components/SettingsPage.jsx';
+import AboutUs from './components/AboutUs.jsx';
 
 import useDarkMode from './hooks/useDarkMode.js';
 import { useScrollDirection } from './hooks/userScrollDirection.js';
@@ -110,6 +113,9 @@ function App() {
           <RelevantArticles />
           <AuthTabs />
           <UserProfilePage />
+          <AnalysisPage />
+          <SettingsPage />
+          <AboutUs />
         </div>
         <div className="md:w-1/6">
           <RightSideContent />

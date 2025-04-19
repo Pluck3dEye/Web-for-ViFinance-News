@@ -23,7 +23,7 @@ function HiddenSideNavBar({ isOpen, onClose, darkMode, toggleDarkMode, sidebarRe
             <div className="flex items-center space-x-2">
               <button
                 onClick={toggleDarkMode}
-                className={`w-14 h-8 bg-orange-400 dark:bg-gray-900 rounded-full flex items-center relative transition-colors duration-300`}
+                className={`w-14 h-8 bg-lime-300 dark:bg-gray-900 rounded-full flex items-center relative transition-colors duration-300`}
                 aria-label="Toggle dark mode"
               >
                 {/* Sun Icon - Left side */}
