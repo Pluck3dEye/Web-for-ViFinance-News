@@ -12,6 +12,10 @@ This is a web-app build for [the course project of CS3332](https://github.com/DT
 - Feature 2
 - Feature 3
 
+## Current State
+- Only UI template for each sites were added 
+
+
 ## 🛠️ Installation
 
 Instructions on how to get the project up and running:
