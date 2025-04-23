@@ -6,7 +6,7 @@
 
 .app, .footer {
   color: var(--color-dark-a0);
-  background-color: var(--color-surface-a0);
+  background-color: var(--color-surface-0);
   @variant dark {
     color: var(--color-light-a0);
     background-color: var(--color-dark-surface-a0);

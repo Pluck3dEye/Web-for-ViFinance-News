@@ -1,9 +1,20 @@
 import React from "react";
 import { Sun, Moon } from 'lucide-react';
+import { useAuth } from "../authContext";
+import { useNavigate } from "react-router-dom";
 
 function HiddenSideNavBar({ isOpen, onClose, darkMode, toggleDarkMode, sidebarRef }) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    onClose();
+    navigate("/");
+  };
+
   return (
-    <div 
+    <div
       ref={sidebarRef}
       className={`
       hidden-bar  
@@ -15,9 +26,52 @@ function HiddenSideNavBar({ isOpen, onClose, darkMode, toggleDarkMode, sidebarRe
         &times;
       </button>
       <ul className="mt-16 space-y-4 px-6">
-        <li><a href="signin.html" className="block hover:underline">Sign In / Sign Up</a></li>
-        <li><a href="article.html" className="block hover:underline">Article</a></li>
-        <li><a href="protect.html" className="block hover:underline">Protect</a></li>
+        {user ? (
+          <>
+            <li className="mb-6 text-lg font-semibold text-gray-900 dark:text-white text-center">
+              Hi, {user.name || user.username}
+            </li>
+            <li>
+              <a
+                href="/profile"
+                className="block hover:underline"
+                onClick={onClose}
+              >
+                Profile Page
+              </a>
+            </li>
+            <li>
+              <a
+                href="/saved-articles"
+                className="block hover:underline"
+                onClick={onClose}
+              >
+                Saved Articles
+              </a>
+            </li>
+            <li>
+              <a
+                href="/settings"
+                className="block hover:underline"
+                onClick={onClose}
+              >
+                Settings
+              </a>
+            </li>
+            <li>
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left hover:underline bg-transparent border-none p-0 m-0"
+              >
+                Logout
+              </button>
+            </li>
+          </>
+        ) : (
+          <li>
+            <a href="/login" className="block hover:underline">Sign In / Sign Up</a>
+          </li>
+        )}
         <li>
           <div className="flex justify-end mt-6">
             <div className="flex items-center space-x-2">
