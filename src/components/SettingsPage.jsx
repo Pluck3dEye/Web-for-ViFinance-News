@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 
 const settingsOptions = [
@@ -13,7 +14,8 @@ const settingsOptions = [
 
 export default function SettingsPage() {
   const [toggles, setToggles] = useState(Array(settingsOptions.length).fill(false));
-
+  const navigate = useNavigate();
+  
   const toggleSwitch = (index) => {
     const updatedToggles = [...toggles];
     updatedToggles[index] = !updatedToggles[index];
@@ -21,23 +23,21 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-lime-100 to-white dark:from-gray-900 dark:to-gray-800 p-6">
+    <div className="flex min-h-screen bg-gradient-to-t from-lime-50 to-white dark:from-gray-900 dark:to-gray-800 p-6">
       {/* Sidebar */}
       <div className="w-16 flex flex-col items-center space-y-4">
-        <div className="text-2xl text-lime-600 hover:text-lime-800 cursor-pointer">
+        <div className="text-3xl cursor-pointer text-lime-600 hover:text-lime-800 transition" onClick={() => navigate(-1)}>
           <FaArrowLeft />
         </div>
-        {settingsOptions.map((_, i) => (
-          <div key={i} className="w-10 h-6 rounded-md bg-gray-300 dark:bg-gray-700 hover:bg-lime-300 dark:hover:bg-lime-500 transition" />
-        ))}
       </div>
 
       {/* Main Content */}
       <div className="flex-1 ml-6">
+        
         {/* Action Button */}
         <div className="mb-6">
           <button className="bg-lime-500 hover:bg-lime-600 text-white font-semibold py-2 px-4 rounded-lg shadow transition">
-            Action Button
+            Settings
           </button>
         </div>
 
