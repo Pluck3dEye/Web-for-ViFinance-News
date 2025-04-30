@@ -17,7 +17,7 @@ This is a web-app build for [the course project of CS3332](https://github.com/DT
 
 
 ## 🛠️ Installation
-- Prerequisites
+- Prerequisites  
 [Node.js](https://nodejs.org/en/download)  
 [Python v3.x](https://www.python.org/downloads/) (if use the testing server)
 
