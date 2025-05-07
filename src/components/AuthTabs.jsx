@@ -1,10 +1,11 @@
 import { useState } from "react";
-// import OtpVerification from "./OtpVerification";
+import OtpVerification from "./OtpVerification";
 
 export default function AuthTabs({ onOtpRequired }) {
   const [activeTab, setActiveTab] = useState("login");
   const [forgotPassword, setForgotPassword] = useState(false);
   const [registerSuccessMsg, setRegisterSuccessMsg] = useState("");
+  const [otpEmail, setOtpEmail] = useState("");
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen transition-colors">
@@ -12,34 +13,36 @@ export default function AuthTabs({ onOtpRequired }) {
         {!forgotPassword ? (
           <>
             {/* Tab Navigation */}
-            <div className="flex">
-              <button
-                onClick={() => {
-                  setActiveTab("login");
-                  setRegisterSuccessMsg(""); // clear message when switching tab
-                }}
-                className={`w-1/2 py-3 text-center text-sm font-medium transition-colors duration-300 ${
-                  activeTab === "login"
-                    ? "bg-primary-a0 text-white"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                Login
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab("register");
-                  setRegisterSuccessMsg(""); // clear message when switching tab
-                }}
-                className={`w-1/2 py-3 text-center text-sm font-medium transition-colors duration-300 ${
-                  activeTab === "register"
-                    ? "bg-primary-a0 text-white"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                Register
-              </button>
-            </div>
+            {activeTab !== "otp" && (
+              <div className="flex">
+                <button
+                  onClick={() => {
+                    setActiveTab("login");
+                    setRegisterSuccessMsg("");
+                  }}
+                  className={`w-1/2 py-3 text-center text-sm font-medium transition-colors duration-300 ${
+                    activeTab === "login"
+                      ? "bg-primary-a0 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  }`}
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab("register");
+                    setRegisterSuccessMsg("");
+                  }}
+                  className={`w-1/2 py-3 text-center text-sm font-medium transition-colors duration-300 ${
+                    activeTab === "register"
+                      ? "bg-primary-a0 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  }`}
+                >
+                  Register
+                </button>
+              </div>
+            )}
 
             <div className="p-6">
               {activeTab === "login" ? (
@@ -52,9 +55,19 @@ export default function AuthTabs({ onOtpRequired }) {
                   <LoginForm
                     onSwitch={() => setActiveTab("register")}
                     onForgot={() => setForgotPassword(true)}
-                    onOtpRequired={onOtpRequired}
+                    onOtpRequired={(email) => {
+                      setOtpEmail(email);
+                      setActiveTab("otp");
+                    }}
                   />
                 </>
+              ) : activeTab === "otp" ? (
+                <OtpVerification
+                  email={otpEmail}
+                  onBack={() => setActiveTab("login")}
+                  onSuccess={() => window.location.reload()}
+                  cardClassName="max-w-xs mx-auto" // pass a className for width control
+                />
               ) : (
                 <RegisterForm
                   onSwitch={() => setActiveTab("login")}
@@ -83,36 +96,75 @@ function LoginForm({ onSwitch, onForgot, onOtpRequired }) {
   const [loginPassword, setLoginPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
+  // Step 1: Call /api/verify with email/password
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/login", {
+      const res = await fetch("http://localhost:6999/api/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          login: loginName, // can be username or email
+          email: loginName,
           password: loginPassword,
         }),
       });
       const data = await res.json();
       if (res.ok) {
-        // If backend says OTP required, call onOtpRequired
-        if (data.otp_required) {
-          onOtpRequired();
-        } else {
-          // fallback: login success
-        }
+        // Always require OTP after verify (since backend always sends OTP)
+        onOtpRequired(loginName);
       } else {
-        setError(data?.message || "Login failed");
+        setError(data?.error || data?.message || "Login failed");
       }
     } catch (err) {
       setError("Network error");
     }
     setLoading(false);
+  };
+
+  // Google login handler
+  const handleGoogleLogin = () => {
+    setError("");
+    setGoogleLoading(true);
+    /* global google */
+    if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+      setError("Google login not available. Please try again later.");
+      setGoogleLoading(false);
+      return;
+    }
+    window.google.accounts.id.initialize({
+      client_id: "YOUR_GOOGLE_CLIENT_ID", // <-- Replace with your Google client ID
+      callback: async (response) => {
+        if (!response.credential) {
+          setError("Google login failed.");
+          setGoogleLoading(false);
+          return;
+        }
+        try {
+          const res = await fetch("http://localhost:5000/api/auth/google-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ idToken: response.credential }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            // Optionally, call onOtpRequired or reload/redirect
+            window.location.reload();
+          } else {
+            setError(data?.error || "Google login failed");
+          }
+        } catch {
+          setError("Network error");
+        }
+        setGoogleLoading(false);
+      },
+    });
+    window.google.accounts.id.prompt();
   };
 
   return (
@@ -150,6 +202,17 @@ function LoginForm({ onSwitch, onForgot, onOtpRequired }) {
       >
         {loading ? "Signing in..." : "Sign in"}
       </button>
+      {/* Google Login Button */}
+      <button
+        type="button"
+        className="w-full bg-white border border-gray-300 text-gray-700 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-50 transition"
+        style={{ marginTop: 8 }}
+        onClick={handleGoogleLogin}
+        disabled={googleLoading}
+      >
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" style={{ width: 20, height: 20 }} />
+        {googleLoading ? "Signing in with Google..." : "Sign in with Google"}
+      </button>
       <p className="text-center text-sm text-gray-600 dark:text-gray-400">
         Not a member? <button type="button" onClick={onSwitch} className="text-primary-a0 dark:text-primary-a30 hover:underline">Register</button>
       </p>
@@ -180,23 +243,23 @@ function RegisterForm({ onSwitch, onRegisterSuccess }) {
     }
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/register", {
+      const res = await fetch("http://localhost:6999/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          name: registerName,
-          username: registerUsername,
           email: registerEmail,
           password: registerPassword,
+          userName: registerUsername,
+          bio: "",
+          avatarLink: "",
         }),
       });
       const data = await res.json();
       if (res.ok) {
-        // Show success message and switch to login tab
         if (onRegisterSuccess) onRegisterSuccess();
       } else {
-        setError(data?.message || "Registration failed");
+        setError(data?.error || data?.message || "Registration failed");
       }
     } catch (err) {
       setError("Network error");

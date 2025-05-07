@@ -86,10 +86,18 @@ export default function UserProfilePage() {
         <div className="flex flex-col lg:flex-row gap-8 mb-12">
           {/* Profile Card */}
           <div className="w-full lg:w-[280px] bg-white dark:bg-gray-700 rounded-2xl shadow-xl p-6 text-center">
-            <FaUserCircle className="text-6xl text-lime-400 dark:text-lime-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">{user?.name || user?.username || "User"}</h2>
+            {user?.avatarLink ? (
+              <img
+                src={user.avatarLink}
+                alt="Avatar"
+                className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-lime-300 dark:border-lime-500"
+              />
+            ) : (
+              <FaUserCircle className="text-6xl text-lime-400 dark:text-lime-300 mx-auto mb-4" />
+            )}
+            <h2 className="text-xl font-semibold mb-2">{user?.userName || user?.email || "User"}</h2>
             <p className="text-gray-500 dark:text-gray-300 mb-1 break-all">{user?.email}</p>
-            <p className="text-gray-400 dark:text-gray-400 mb-4">{user?.username ? `@${user.username}` : ""}</p>
+            <p className="text-gray-400 dark:text-gray-400 mb-4">{user?.userName ? `@${user.userName}` : ""}</p>
             <div className="space-y-3">
               <button
                 className="w-full bg-lime-500 text-white py-2 rounded-lg hover:bg-lime-600 transition"
@@ -117,7 +125,7 @@ export default function UserProfilePage() {
                 <span className="font-medium">Name:</span> {user?.name || "-"}
               </li>
               <li>
-                <span className="font-medium">Username:</span> {user?.username || "-"}
+                <span className="font-medium">Username:</span> {user?.userName || "-"}
               </li>
               <li>
                 <span className="font-medium">Email:</span> {user?.email || "-"}

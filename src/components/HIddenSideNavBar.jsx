@@ -29,7 +29,7 @@ function HiddenSideNavBar({ isOpen, onClose, darkMode, toggleDarkMode, sidebarRe
         {user ? (
           <>
             <li className="mb-6 text-lg font-semibold text-gray-900 dark:text-white text-center">
-              Hi, {user.name || user.username}
+              {user.userName || user.email || user.userId}
             </li>
             <li>
               <a

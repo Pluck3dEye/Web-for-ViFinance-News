@@ -2,24 +2,28 @@
 
 This is a web-app build for [the course project of CS3332](https://github.com/DTJ-Tran/VifinanceNews)
 
-## 📸 Demo (Optional)
+## 📸 Demo (In Progressing)
 
-[Insert screenshots, GIFs, or link to a live demo here]
+![The Main Page](./assets/MainPage.png)
 
 ## 🚀 Features
 
-- Feature 1
-- Feature 2
-- Feature 3
+- Vite + React
+- Tailwind CSS v4.1
+- Flask Python
 
 ## Current State
-- Only UI template for each sites were added 
-
+- Frontend in state of testing and implemented with the backend project
 
 ## 🛠️ Installation
 - Prerequisites  
-[Node.js](https://nodejs.org/en/download)  
-[Python v3.x](https://www.python.org/downloads/) (if use the testing server)
+    - [Node.js](https://nodejs.org/en/download)  
+    - [Python v3.x](https://www.python.org/downloads/) (if use the testing server)
+
+- Current used version  
+    - Node.js v20.18.0
+    - Python v3.13 for the server testing
+    - Python v3.11 for the backend project
 
 ### Linux
 - Clone the repo
@@ -53,6 +57,11 @@ pip install -r requirements.txt
 npm run dev # Web
 flask run # Server
 ```
+
+# Log
+
+- [Log fix 1 6/5/2025](https://gist.github.com/Blindn3ss/e2fbb6ecc9437e8c0ffe321314612521) 
+
 
 
 # Note

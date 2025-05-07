@@ -3,50 +3,78 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // { username, name, email, avatar }
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Fetch auth status and user profile
   useEffect(() => {
-    fetch('http://localhost:5000/api/user', {
-      credentials: 'include',
-    })
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data?.username) {
-          setUser({
-            username: data.username,
-            name: data.name,
-            email: data.email,
-            avatar: data.avatar,
+    async function fetchUser() {
+      try {
+        const authRes = await fetch('http://localhost:6999/api/auth-status', {
+          credentials: 'include',
+        });
+        const authData = await authRes.json();
+        if (authData?.loggedIn) {
+          // Fetch user profile from UserService
+          const profileRes = await fetch('http://localhost:6998/api/user/profile', {
+            credentials: 'include',
           });
+          if (profileRes.ok) {
+            const profile = await profileRes.json();
+            setUser({
+              userId: authData.userId,
+              userName: profile.userName,
+              email: profile.email,
+              bio: profile.bio,
+              avatarLink: profile.avatarLink,
+            });
+          } else {
+            setUser({ userId: authData.userId });
+          }
         } else {
           setUser(null);
         }
-        setLoading(false);
-      });
+      } catch {
+        setUser(null);
+      }
+      setLoading(false);
+    }
+    fetchUser();
   }, []);
 
-  // Accepts a user object with username, name, email, avatar
-  const login = (userData) => {
-    if (userData && userData.username) {
-      setUser({
-        username: userData.username,
-        name: userData.name,
-        email: userData.email,
-        avatar: userData.avatar,
-      });
+  // Accepts a user object with userId, then fetches profile
+  const login = async (userData) => {
+    if (userData && userData.userId) {
+      try {
+        const profileRes = await fetch('http://localhost:6998/api/user/profile', {
+          credentials: 'include',
+        });
+        if (profileRes.ok) {
+          const profile = await profileRes.json();
+          setUser({
+            userId: userData.userId,
+            userName: profile.userName,
+            email: profile.email,
+            bio: profile.bio,
+            avatarLink: profile.avatarLink,
+          });
+        } else {
+          setUser({ userId: userData.userId });
+        }
+      } catch {
+        setUser({ userId: userData.userId });
+      }
     } else {
       setUser(null);
     }
   };
 
-  // Update user info in context (for profile editor)
   const updateUser = (fields) => {
     setUser(prev => prev ? { ...prev, ...fields } : prev);
   };
 
   const logout = () => {
-    fetch('http://localhost:5000/api/logout', {
+    fetch('http://localhost:6999/api/logout', {
       method: 'POST',
       credentials: 'include',
     }).then(() => setUser(null));

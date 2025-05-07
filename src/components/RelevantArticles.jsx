@@ -31,7 +31,11 @@ export default function RelevantArticles() {
     setSynthesis("");
     setSynthError("");
     setSynthLoading(false);
-    fetch(`/api/get_cached_result?query=${encodeURIComponent(query)}`)
+    fetch("http://localhost:7001/api/get_cached_result", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query })
+    })
       .then(res => res.json())
       .then(data => {
         if (data.message === "success" && Array.isArray(data.data)) {
@@ -73,37 +77,45 @@ export default function RelevantArticles() {
   // Analysis click handler
   const handleAnalyze = async (article) => {
     setAnalyzing(article.url);
+    console.log("Analyzing article:", article.url);
     try {
+      // Helper to fetch and handle 404
+      const safeFetch = async (url, body) => {
+        try {
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+          if (res.status === 404) return { _notFound: true };
+          return await res.json();
+        } catch {
+          return { _notFound: true };
+        }
+      };
+
       // Run all 4 requests in parallel
       const [summaryRes, toxicityRes, sentimentRes, factcheckRes] = await Promise.all([
-        fetch("/api/summarize/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: article.url })
-        }).then(r => r.json()),
-        fetch("/api/toxicity_analysis/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: article.url })
-        }).then(r => r.json()),
-        fetch("/api/sentiment_analysis/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: article.url })
-        }).then(r => r.json()),
-        fetch("/api/factcheck/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: article.url })
-        }).then(r => r.json()),
+        safeFetch("http://localhost:7002/api/summarize/", { url: article.url }),
+        safeFetch("http://localhost:7003/api/toxicity_analysis/", { url: article.url }),
+        safeFetch("http://localhost:7003/api/sentiment_analysis/", { url: article.url }),
+        safeFetch("http://localhost:7003/api/factcheck/", { url: article.url }),
       ]);
+
+      const all404 = [summaryRes, toxicityRes, sentimentRes, factcheckRes].every(r => r._notFound);
+      if (all404) {
+        alert("All analysis services are unavailable. Please try again later.");
+        setAnalyzing(null);
+        return;
+      }
+
       navigate("/analysis", {
         state: {
           article,
-          summary: summaryRes.summary,
-          toxicity: toxicityRes.toxicity_analysis,
-          sentiment: sentimentRes.sentiment_analysis,
-          factcheck: factcheckRes["fact-check"]
+          summary: summaryRes._notFound ? "Not available" : summaryRes.summary,
+          toxicity: toxicityRes._notFound ? null : JSON.stringify(toxicityRes.toxicity_analysis),
+          sentiment: sentimentRes._notFound ? null : sentimentRes.sentiment_analysis,
+          factcheck: factcheckRes._notFound ? "Not available" : factcheckRes["fact-check"]
         }
       });
     } catch (e) {

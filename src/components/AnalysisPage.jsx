@@ -1,9 +1,20 @@
+import React from "react";
 import { useLocation } from "react-router-dom";
 
 export default function AnalysisPage() {
   const location = useLocation();
-  const { article, summary, toxicity, sentiment, factcheck } = location.state || {};
+  let { article, summary, toxicity, sentiment, factcheck } = location.state || {};
 
+  // Parse toxicity if it's a JSON string
+  if (typeof toxicity === "string") {
+    try {
+      toxicity = JSON.parse(toxicity);
+    } catch (e) {
+      // If parsing fails, leave as is
+    }
+  }
+
+  console.log(toxicity);
   if (!article) {
     return (
       <div className="min-h-screen flex items-center justify-center text-xl text-gray-700 dark:text-gray-200">
@@ -19,7 +30,8 @@ export default function AnalysisPage() {
         <div className="md:col-span-2 space-y-10">
           <Section title="Summary" text={summary || "No summary available."} />
           <Section title="Toxicity Analysis">
-            {toxicity ? (
+            {/* Show the list if toxicity exists and is an object */}
+            {toxicity && typeof toxicity === "object" ? (
               <ul className="space-y-2">
                 {Object.entries(toxicity).map(([label, value]) => (
                   <li key={label} className="flex justify-between">
@@ -28,6 +40,8 @@ export default function AnalysisPage() {
                   </li>
                 ))}
               </ul>
+            ) : toxicity === "Not available" ? (
+              <span>Not available.</span>
             ) : (
               <span>No toxicity analysis available.</span>
             )}
@@ -74,7 +88,10 @@ function Section({ title, text, children }) {
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md">
       <h2 className="text-3xl font-bold mb-4 text-lime-600 dark:text-lime-400">{title}</h2>
-      {text ? <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">{text}</p> : children}
+      {/* Render children if defined, otherwise render text */}
+      {children !== undefined
+        ? children
+        : <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">{text}</p>}
     </div>
   );
 }
