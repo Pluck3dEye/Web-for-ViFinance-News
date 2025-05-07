@@ -106,13 +106,13 @@ function MainLayout() {
       <div className="container mt-24 text-center"></div>
       <div className="flex flex-col flex-grow md:flex-row">
         <div className="md:w-1/6">
-          <LeftSideContent />
+          {/* <LeftSideContent /> */}
         </div>
         <div className="md:w-4/6">
           <Outlet />
         </div>
         <div className="md:w-1/6">
-          <RightSideContent />
+          {/* <RightSideContent /> */}
         </div>
       </div>
       <Footer />
