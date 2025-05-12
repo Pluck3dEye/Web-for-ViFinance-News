@@ -145,7 +145,7 @@ function LoginForm({ onSwitch, onForgot, onOtpRequired }) {
           return;
         }
         try {
-          const res = await fetch("http://localhost:5000/api/auth/google-login", {
+          const res = await fetch("http://localhost:6999/api/google-login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -153,10 +153,9 @@ function LoginForm({ onSwitch, onForgot, onOtpRequired }) {
           });
           const data = await res.json();
           if (res.ok) {
-            // Optionally, call onOtpRequired or reload/redirect
             window.location.reload();
           } else {
-            setError(data?.error || "Google login failed");
+            setError(data?.error || data?.message || "Google login failed");
           }
         } catch {
           setError("Network error");
@@ -221,9 +220,8 @@ function LoginForm({ onSwitch, onForgot, onOtpRequired }) {
 }
 
 function RegisterForm({ onSwitch, onRegisterSuccess }) {
-  const [registerName, setRegisterName] = useState("");
-  const [registerUsername, setRegisterUsername] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
+  const [registerUserName, setRegisterUserName] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerRepeatPassword, setRegisterRepeatPassword] = useState("");
   const [agree, setAgree] = useState(false);
@@ -250,9 +248,8 @@ function RegisterForm({ onSwitch, onRegisterSuccess }) {
         body: JSON.stringify({
           email: registerEmail,
           password: registerPassword,
-          userName: registerUsername,
-          bio: "",
-          avatarLink: "",
+          userName: registerUserName,
+          loginMethod: "local"
         }),
       });
       const data = await res.json();
@@ -270,32 +267,22 @@ function RegisterForm({ onSwitch, onRegisterSuccess }) {
   return (
     <form className="space-y-4" onSubmit={handleRegister}>
       <div>
-        <label htmlFor="registerName" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Name</label>
-        <input
-          type="text"
-          id="registerName"
-          value={registerName}
-          onChange={e => setRegisterName(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-a10 focus:border-primary-a10 dark:text-white"
-        />
-      </div>
-      <div>
-        <label htmlFor="registerUsername" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Username</label>
-        <input
-          type="text"
-          id="registerUsername"
-          value={registerUsername}
-          onChange={e => setRegisterUsername(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-a10 focus:border-primary-a10 dark:text-white"
-        />
-      </div>
-      <div>
         <label htmlFor="registerEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Email</label>
         <input
           type="email"
           id="registerEmail"
           value={registerEmail}
           onChange={e => setRegisterEmail(e.target.value)}
+          className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-a10 focus:border-primary-a10 dark:text-white"
+        />
+      </div>
+      <div>
+        <label htmlFor="registerUserName" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Username</label>
+        <input
+          type="text"
+          id="registerUserName"
+          value={registerUserName}
+          onChange={e => setRegisterUserName(e.target.value)}
           className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-a10 focus:border-primary-a10 dark:text-white"
         />
       </div>

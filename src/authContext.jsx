@@ -43,8 +43,12 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Accepts a user object with userId, then fetches profile
-  const login = async (userData) => {
-    if (userData && userData.userId) {
+  const login = async (userIdOrData) => {
+    let userId = userIdOrData;
+    if (userIdOrData && typeof userIdOrData === 'object' && userIdOrData.userId) {
+      userId = userIdOrData.userId;
+    }
+    if (userId) {
       try {
         const profileRes = await fetch('http://localhost:6998/api/user/profile', {
           credentials: 'include',
@@ -52,17 +56,17 @@ export const AuthProvider = ({ children }) => {
         if (profileRes.ok) {
           const profile = await profileRes.json();
           setUser({
-            userId: userData.userId,
+            userId,
             userName: profile.userName,
             email: profile.email,
             bio: profile.bio,
             avatarLink: profile.avatarLink,
           });
         } else {
-          setUser({ userId: userData.userId });
+          setUser({ userId });
         }
       } catch {
-        setUser({ userId: userData.userId });
+        setUser({ userId });
       }
     } else {
       setUser(null);
@@ -77,7 +81,10 @@ export const AuthProvider = ({ children }) => {
     fetch('http://localhost:6999/api/logout', {
       method: 'POST',
       credentials: 'include',
-    }).then(() => setUser(null));
+    }).then(async (res) => {
+      // Always set user to null, but check for error message
+      setUser(null);
+    });
   };
 
   return (

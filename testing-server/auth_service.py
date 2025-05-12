@@ -13,16 +13,15 @@ def register():
     data = request.json
     email = data.get('email')
     password = data.get('password')
-    userName = data.get('userName')
     bio = data.get('bio', '')
     avatarLink = data.get('avatarLink', '')
-    if not email or not password or not userName:
+    if not email or not password:
         return jsonify({"error": "Missing required fields"}), 400
     if email in users:
         return jsonify({"error": "Email already exists"}), 400
     users[email] = {
         'password': password,
-        'userName': userName,
+        'userName': '',  # Set to empty string or remove if not used elsewhere
         'bio': bio,
         'avatarLink': avatarLink,
         'otp': None

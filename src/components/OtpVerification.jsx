@@ -51,7 +51,7 @@ export default function OtpVerification({ onBack, onSuccess, email, cardClassNam
       const data = await res.json();
       if (res.ok) {
         setSuccess(true);
-        if (onSuccess) onSuccess(data.user);
+        if (onSuccess) onSuccess(data.userId || (data.user && data.user.userId));
       } else {
         setError(data?.error || data?.message || "Invalid OTP");
       }
