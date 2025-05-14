@@ -4,6 +4,17 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@font-face {
+     font-family: 'Poppins';
+     src: url('./src/fonts/Poppins-Medium.ttf') format('tff');     
+     font-weight: normal;
+     font-style: normal;
+}
+
+body {
+  font-family: Poppins, sans-serif;
+}
+
 .app, .footer {
   color: var(--color-dark-a0);
   background-color: var(--color-surface-0);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../authContext";
 import { useNavigate } from "react-router-dom";
 
@@ -6,38 +6,65 @@ export default function ProfileEditor() {
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
 
-  const [name, setName] = useState(user?.name || "");
-  const [email, setEmail] = useState(user?.email || "");
+  const [userName, setUserName] = useState(user?.userName || "");
+  const [bio, setBio] = useState(user?.bio || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [avatar, setAvatar] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatarLink || null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  // Handle avatar preview and upload
+  // Ensure avatarPreview updates if user.avatarLink changes and no new file is selected
+  useEffect(() => {
+    if (!avatar) {
+      setAvatarPreview(user?.avatarLink || null);
+    }
+  }, [user?.avatarLink]);
+
+  // Handle avatar preview and upload (two-step: upload then update profile)
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     setAvatar(file);
     if (file) {
+      // Only allow PNG and JPG
+      if (!["image/png", "image/jpeg"].includes(file.type)) {
+        setError("Only PNG and JPG images are allowed.");
+        setAvatarPreview(user?.avatarLink || null); // fallback to current avatar
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = async () => {
-        setAvatarPreview(reader.result);
-        // Upload avatar to backend
+        setAvatarPreview(reader.result); // show preview of new file
+        // Step 1: Upload avatar image
+        const formData = new FormData();
+        formData.append("avatar", file);
         try {
-          const res = await fetch("http://localhost:5000/api/avatar", {
+          const res = await fetch("http://localhost:6998/api/avatar/upload", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify({ avatar: reader.result }),
+            body: formData,
           });
-          if (res.ok) {
-            updateUser({ avatar: reader.result });
-            setMessage("Avatar updated!");
+          const data = await res.json();
+          if (res.ok && data.avatarUrl) {
+            // Step 2: Update avatar link in profile
+            const res2 = await fetch("http://localhost:6998/api/user/avatar", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ avatarLink: data.avatarUrl }),
+            });
+            if (res2.ok) {
+              updateUser({ avatarLink: data.avatarUrl });
+              setMessage("Avatar updated!");
+            } else {
+              setError("Failed to update avatar link");
+            }
           } else {
-            setError("Failed to update avatar");
+            setError(data?.error || "Failed to upload avatar");
           }
         } catch {
           setError("Network error");
@@ -45,32 +72,45 @@ export default function ProfileEditor() {
       };
       reader.readAsDataURL(file);
     } else {
-      setAvatarPreview(null);
+      setAvatar(null);
+      setAvatarPreview(user?.avatarLink || null); // fallback to current avatar
     }
   };
 
-  // Profile update
+  // Profile update (username & bio)
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
+    setSaving(true);
+    if (!userName) {
+      setError("Username cannot be blank");
+      setSaving(false);
+      return;
+    }
     try {
-      const res = await fetch("http://localhost:5000/api/profile", {
-        method: "POST",
+      const res = await fetch("http://localhost:6998/api/user/update-info", {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ userName, bio }),
       });
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        // If not JSON, ignore and use default messages
+      }
       if (res.ok) {
-        setMessage("Profile updated successfully!");
-        updateUser({ name: data.name, email: data.email });
+        setMessage(data?.message || "Profile updated successfully!");
+        updateUser({ userName, bio });
       } else {
-        setError(data?.message || "Failed to update profile");
+        setError(data?.message || data?.error || "Failed to update profile");
       }
     } catch {
       setError("Network error");
     }
+    setSaving(false);
   };
 
   // Password change
@@ -87,14 +127,11 @@ export default function ProfileEditor() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:5000/api/change-password", {
-        method: "POST",
+      const res = await fetch("http://localhost:6998/api/user/change-password", {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          currentPassword,
-          newPassword,
-        }),
+        body: JSON.stringify({ currentPassword, newPassword }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -103,7 +140,7 @@ export default function ProfileEditor() {
         setNewPassword("");
         setRepeatPassword("");
       } else {
-        setError(data?.message || "Failed to change password");
+        setError(data?.message || data?.error || "Failed to change password");
       }
     } catch (err) {
       setError("Network error");
@@ -116,16 +153,17 @@ export default function ProfileEditor() {
     setError("");
     setMessage("");
     try {
-      const res = await fetch("http://localhost:5000/api/delete-account", {
-        method: "POST",
+      const res = await fetch("http://localhost:6998/api/user/delete", {
+        method: "DELETE",
         credentials: "include",
       });
+      const data = await res.json();
       if (res.ok) {
         logout();
         setDeleting(false);
         navigate("/");
       } else {
-        setError("Failed to delete account");
+        setError(data?.message || data?.error || "Failed to delete account");
         setDeleting(false);
       }
     } catch {
@@ -152,7 +190,7 @@ export default function ProfileEditor() {
               )}
               <label
                 htmlFor="avatar-upload"
-                className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex flex-col items-center justify-center cursor-pointer transition-all duration-200"
+                className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 group-hover:pointer-events-auto group-hover:bg-black group-hover:bg-opacity-30 group-hover:rounded-full group-hover:shadow-lg"
                 title="Change avatar"
               >
                 <span className="opacity-0 group-hover:opacity-100 text-white text-xs font-semibold transition-opacity duration-200">
@@ -166,7 +204,7 @@ export default function ProfileEditor() {
               <input
                 id="avatar-upload"
                 type="file"
-                accept="image/*"
+                accept="image/png, image/jpeg"
                 onChange={handleAvatarChange}
                 className="hidden"
               />
@@ -178,28 +216,29 @@ export default function ProfileEditor() {
         {/* Profile Info */}
         <form onSubmit={handleProfileUpdate} className="space-y-4 mb-8">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Username</label>
             <input
               type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
+              value={userName}
+              onChange={e => setUserName(e.target.value)}
               className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-a10 focus:border-primary-a10 dark:text-white"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Bio</label>
+            <textarea
+              value={bio}
+              onChange={e => setBio(e.target.value)}
               className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-a10 focus:border-primary-a10 dark:text-white"
+              rows={3}
             />
           </div>
           <button
             type="submit"
             className="w-full bg-primary-a0 text-white py-2 rounded-md hover:bg-primary-a10 transition"
+            disabled={saving}
           >
-            Save Changes
+            {saving ? "Saving..." : "Save Changes"}
           </button>
         </form>
 

@@ -64,7 +64,7 @@ export default function OtpVerification({ onBack, onSuccess, email, cardClassNam
   return (
     <div className="flex flex-col justify-center items-center min-h-[300px]">
       <div
-        className={`bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 ${cardClassName}`}
+        className={`rounded-xl p-6 ${cardClassName} mx-2 sm:mx-auto`}
         style={{ minWidth: 0 }}
       >
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">

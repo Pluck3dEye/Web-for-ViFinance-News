@@ -122,9 +122,6 @@ export default function UserProfilePage() {
             <h3 className="text-lg font-semibold mb-4">Account Summary</h3>
             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
               <li>
-                <span className="font-medium">Name:</span> {user?.name || "-"}
-              </li>
-              <li>
                 <span className="font-medium">Username:</span> {user?.userName || "-"}
               </li>
               <li>
@@ -132,10 +129,7 @@ export default function UserProfilePage() {
               </li>
               {/* Add more user info fields here if available */}
               <li>
-                <span className="font-medium">Status:</span> Active
-              </li>
-              <li>
-                <span className="font-medium">Plan:</span> Premium
+                <span className="font-medium">Bio:</span> {user?.bio || "-"}
               </li>
             </ul>
           </div>
