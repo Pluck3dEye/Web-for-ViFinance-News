@@ -3,7 +3,7 @@ from flask_cors import CORS
 import random, datetime
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(app, supports_credentials=True, origins="*")
 
 @app.route('/get_cached_result', methods=['POST'])
 def get_cached_result():
@@ -63,4 +63,4 @@ def vote():
     return jsonify({"status": "success", "url": url, "vote_type": vote_type}), 200
 
 if __name__ == '__main__':
-    app.run(port=7001, debug=True)
+    app.run(port=7001, host="0.0.0.0", debug=True)

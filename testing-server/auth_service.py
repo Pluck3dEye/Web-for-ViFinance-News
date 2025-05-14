@@ -4,7 +4,7 @@ import random
 
 app = Flask(__name__)
 app.secret_key = "secret123"
-CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(app, supports_credentials=True, origins="*")
 
 users = {}  # key: email, value: {'password': ..., 'userName': ..., 'bio': ..., 'avatarLink': ..., 'otp': None}
 
@@ -96,4 +96,4 @@ def google_login():
     return jsonify({"message": "Google login successful"}), 200
 
 if __name__ == '__main__':
-    app.run(port=6999, debug=True)
+    app.run(port=6999, host="0.0.0.0", debug=True)

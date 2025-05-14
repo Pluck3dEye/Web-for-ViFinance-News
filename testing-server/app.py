@@ -6,7 +6,7 @@ import datetime
 
 app = Flask(__name__)
 app.secret_key = "secret123"  
-CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(app, supports_credentials=True, origins="*")
 
 users = {}  # key: email, value: {'password': ..., 'userName': ..., 'bio': ..., 'avatarLink': ..., 'otp': None}
 
@@ -180,7 +180,7 @@ def factcheck():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
 
 
 

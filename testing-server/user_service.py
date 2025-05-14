@@ -3,7 +3,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 app.secret_key = "secret123"
-CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(app, supports_credentials=True, origins="*")
 
 # Dummy users store (should be shared with AuthService in real app)
 users = {}  # key: email, value: {'userName', 'bio', 'avatarLink', ...}
@@ -43,6 +43,22 @@ def user_update():
     user["avatarLink"] = avatarLink
     return jsonify({"message": "Profile updated"}), 200
 
+@app.route('/api/user/update-info', methods=['PUT'])
+def user_update_info():
+    user, email = get_current_user()
+    if not user:
+        return jsonify({"message": "Unauthorized"}), 401
+    data = request.json
+    userName = data.get("userName")
+    bio = data.get("bio")
+    if userName is not None:
+        if not userName.strip():
+            return jsonify({"message": "Username Cannot Be Empty"}), 400
+        user["userName"] = userName
+    if bio is not None:
+        user["bio"] = bio
+    return jsonify({"message": "Username and/or bio updated"}), 200
+
 @app.route('/api/user/delete', methods=['DELETE'])
 def user_delete():
     user, email = get_current_user()
@@ -68,4 +84,4 @@ def avatar_upload():
     return jsonify({"message": "Avatar updated", "avatarUrl": avatar_url}), 200
 
 if __name__ == '__main__':
-    app.run(port=6998, debug=True)
+    app.run(port=6998, host="0.0.0.0", debug=True)

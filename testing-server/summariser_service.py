@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(app, supports_credentials=True, origins="*")
 
 @app.route('/summarize/', methods=['POST'])
 def summarize():
@@ -25,4 +25,4 @@ def synthesis():
     })
 
 if __name__ == '__main__':
-    app.run(port=7002, debug=True)
+    app.run(port=7002, host="0.0.0.0", debug=True)

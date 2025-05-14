@@ -8,8 +8,8 @@ export default function AuthTabs({ onOtpRequired }) {
   const [otpEmail, setOtpEmail] = useState("");
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen transition-colors">
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
+    <div className="flex sm:flex-row flex-col justify-center items-center sm:min-h-full my-14 sm:my-auto transition-colors">
+      <div className="w-11/12 sm:w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden sm:mx-auto sm:my-auto">
         {!forgotPassword ? (
           <>
             {/* Tab Navigation */}
