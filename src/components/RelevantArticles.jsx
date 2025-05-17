@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaRegBookmark, FaThumbsUp, FaThumbsDown } from "react-icons/fa";
 import { API_BASES } from "../config";
 
@@ -17,6 +17,7 @@ export default function RelevantArticles() {
   const [synthError, setSynthError] = useState("");
   const [savingMap, setSavingMap] = useState({}); // { [url]: 'idle' | 'saving' | 'saved' | 'error' }
   const [voteMap, setVoteMap] = useState({}); // { [url]: { loading: false, vote: 0, error: '' } }
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!query) {
@@ -73,6 +74,15 @@ export default function RelevantArticles() {
       setSynthError("Network error.");
     }
     setSynthLoading(false);
+  };
+
+  // Navigate to analysis page
+  const handleAnalyze = (article) => {
+    navigate("/analysis", {
+      state: {
+        article
+      }
+    });
   };
 
   // Save handler
@@ -169,8 +179,7 @@ export default function RelevantArticles() {
             const vote = voteMap[article.url]?.vote || 0;
             const voteLoading = voteMap[article.url]?.loading;
             const voteError = voteMap[article.url]?.error;
-            // Default image URL (can be replaced with your own asset)
-            const defaultImg = "https://placehold.co/600";
+            const defaultImg = "https://placehold.co/600x400";
             return (
               <div
                 key={article.url || idx}
@@ -244,6 +253,14 @@ export default function RelevantArticles() {
                     {voteError && <span className="ml-2 text-xs text-red-500">{voteError}</span>}
                   </div>
                 </div>
+                {/* Analysis button, only visible on hover */}
+                <button
+                  className="absolute bottom-4 right-4 px-4 py-2 bg-lime-500 text-white rounded-lg shadow-lg transition-opacity duration-200 hover:bg-lime-600 z-10 opacity-0 group-hover:opacity-100 pointer-events-auto"
+                  onClick={() => handleAnalyze(article)}
+                  title="Go to analysis page of this article"
+                >
+                  Go to analysis page
+                </button>
               </div>
             );
           })}
