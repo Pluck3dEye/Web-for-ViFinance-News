@@ -1,20 +1,97 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { API_BASES } from "../config";
 
 export default function AnalysisPage() {
   const location = useLocation();
-  let { article, summary, toxicity, sentiment, factcheck } = location.state || {};
+  let { article, summary: initSummary, toxicity: initToxicity, sentiment: initSentiment, factcheck: initFactcheck } = location.state || {};
+
+  const [summary, setSummary] = useState(initSummary);
+  const [toxicity, setToxicity] = useState(initToxicity);
+  const [sentiment, setSentiment] = useState(initSentiment);
+  const [factcheck, setFactcheck] = useState(initFactcheck);
+  const [bias, setBias] = useState(null);
+  const [factReferences, setFactReferences] = useState(null);
+
+  // Fetch analysis if not provided
+  useEffect(() => {
+    if (!article?.url) return;
+
+    // Fetch summary if not present
+    if (!summary) {
+      fetch(`${API_BASES.summariser}/summarize/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: article.url })
+      })
+        .then(res => res.json())
+        .then(data => setSummary(data.summary))
+        .catch(() => setSummary("Không thể tóm tắt bài viết này."));
+    }
+
+    // Fetch toxicity if not present
+    if (!toxicity) {
+      fetch(`${API_BASES.analysis}/toxicity_analysis/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: article.url })
+      })
+        .then(res => res.json())
+        .then(data => setToxicity(data.toxicity_analysis))
+        .catch(() => setToxicity("Not available"));
+    }
+
+    // Fetch sentiment if not present
+    if (!sentiment) {
+      fetch(`${API_BASES.analysis}/sentiment_analysis/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: article.url })
+      })
+        .then(res => res.json())
+        .then(data => setSentiment(data.sentiment_analysis))
+        .catch(() => setSentiment(null));
+    }
+
+    // Fetch factcheck if not present
+    if (!factcheck) {
+      fetch(`${API_BASES.analysis}/factcheck/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: article.url })
+      })
+        .then(res => res.json())
+        .then(data => {
+          setFactcheck(data);
+          if (data["Danh sách các dẫn chứng"]) setFactReferences(data["Danh sách các dẫn chứng"]);
+        })
+        .catch(() => setFactcheck(null));
+    } else if (factcheck && factcheck["Danh sách các dẫn chứng"]) {
+      setFactReferences(factcheck["Danh sách các dẫn chứng"]);
+    }
+
+    // Fetch bias check
+    fetch(`${API_BASES.analysis}/biascheck/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: article.url })
+    })
+      .then(res => res.json())
+      .then(data => setBias(data))
+      .catch(() => setBias(null));
+  // eslint-disable-next-line
+  }, [article?.url]);
 
   // Parse toxicity if it's a JSON string
+  let parsedToxicity = toxicity;
   if (typeof toxicity === "string") {
     try {
-      toxicity = JSON.parse(toxicity);
-    } catch (e) {
+      parsedToxicity = JSON.parse(toxicity);
+    } catch {
       // If parsing fails, leave as is
     }
   }
 
-  console.log(toxicity);
   if (!article) {
     return (
       <div className="min-h-screen flex items-center justify-center text-xl text-gray-700 dark:text-gray-200">
@@ -30,10 +107,9 @@ export default function AnalysisPage() {
         <div className="md:col-span-2 space-y-10">
           <Section title="Summary" text={summary || "No summary available."} />
           <Section title="Toxicity Analysis">
-            {/* Show the list if toxicity exists and is an object */}
-            {toxicity && typeof toxicity === "object" ? (
+            {parsedToxicity && typeof parsedToxicity === "object" ? (
               <ul className="space-y-2">
-                {Object.entries(toxicity).map(([label, value]) => (
+                {Object.entries(parsedToxicity).map(([label, value]) => (
                   <li key={label} className="flex justify-between">
                     <span className="font-medium">{translateToxicity(label)}:</span>
                     <span>{(value * 100).toFixed(1)}%</span>
@@ -56,8 +132,64 @@ export default function AnalysisPage() {
               <span>No sentiment analysis available.</span>
             )}
           </Section>
+          <Section title="Bias Check">
+            {bias ? (
+              bias["Loại thiên kiến"] ? (
+                <div>
+                  <div className="mb-2"><span className="font-medium">Type:</span> {bias["Loại thiên kiến"]}</div>
+                  <div className="mb-2"><span className="font-medium">Impact Level:</span> {bias["Mức độ ảnh hưởng"]}</div>
+                  <div className="mb-2"><span className="font-medium">Analysis:</span> {bias["Phân tích ngắn gọn"]}</div>
+                  {Array.isArray(bias["Câu hỏi phản biện"]) && (
+                    <div className="mt-2">
+                      <div className="font-medium mb-1">Critical Questions:</div>
+                      <ul className="list-disc list-inside text-sm space-y-1">
+                        {bias["Câu hỏi phản biện"].map((q, i) => (
+                          <li key={i}>{q}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : bias["message"] ? (
+                <span>{bias["message"]}</span>
+              ) : (
+                <span>No bias detected.</span>
+              )
+            ) : (
+              <span>Loading bias check...</span>
+            )}
+          </Section>
           <Section title="Fact Check">
-            {factcheck || "No fact-check result."}
+            {factcheck && typeof factcheck === "object" && factcheck["Kết luận"] ? (
+              <div>
+                <div className="mb-2"><span className="font-medium">Conclusion:</span> {factcheck["Kết luận"]}</div>
+                <div className="mb-2"><span className="font-medium">Evidence Analysis:</span> {factcheck["Phân tích bằng chứng"]}</div>
+                <div className="mb-2"><span className="font-medium">Reliability:</span> {factcheck["Mức độ tin cậy"]}</div>
+                <div className="mb-2"><span className="font-medium">Explanation:</span> {factcheck["Giải thích"]}</div>
+                <div className="mb-2"><span className="font-medium">Advice:</span> {factcheck["Lời khuyên cho người dùng về cách nhìn nhận hiện tại"]}</div>
+                {factReferences && (
+                  <div className="mt-4">
+                    <div className="font-medium mb-2">References:</div>
+                    <ol className="list-decimal list-inside space-y-2">
+                      {Object.entries(factReferences).map(([refKey, ref]) => (
+                        <li key={refKey} className="text-sm">
+                          <span className="font-semibold">{refKey.replace(/\[|\]/g, "")}.</span>{" "}
+                          <span className="italic">{ref.title}</span>.{" "}
+                          <span>{ref.publisher}.</span>{" "}
+                          <a href={ref.url} target="_blank" rel="noopener noreferrer" className="text-primary-a0 dark:text-primary-a20 underline">
+                            [Link]
+                          </a>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </div>
+            ) : factcheck && factcheck["message"] ? (
+              <span>{factcheck["message"]}</span>
+            ) : (
+              <span>No fact-check result.</span>
+            )}
           </Section>
           <div className="w-full h-64 bg-gray-300 dark:bg-gray-700 rounded-2xl flex items-center justify-center shadow-md">
             <span className="text-gray-600 dark:text-gray-300">Image or Graph Placeholder</span>
@@ -88,7 +220,6 @@ function Section({ title, text, children }) {
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md">
       <h2 className="text-3xl font-bold mb-4 text-lime-600 dark:text-lime-400">{title}</h2>
-      {/* Render children if defined, otherwise render text */}
       {children !== undefined
         ? children
         : <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">{text}</p>}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaRegBookmark } from "react-icons/fa";
+import { FaRegBookmark, FaThumbsUp, FaThumbsDown } from "react-icons/fa";
 import { API_BASES } from "../config";
 
 function useQuery() {
@@ -16,6 +16,8 @@ export default function RelevantArticles() {
   const [synthesis, setSynthesis] = useState("");
   const [synthError, setSynthError] = useState("");
   const [analyzing, setAnalyzing] = useState(null); // url being analyzed
+  const [savingMap, setSavingMap] = useState({}); // { [url]: 'idle' | 'saving' | 'saved' | 'error' }
+  const [voteMap, setVoteMap] = useState({}); // { [url]: { loading: false, vote: 0, error: '' } }
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export default function RelevantArticles() {
       } else {
         setSynthError("No synthesis result.");
       }
-    } catch (e) {
+    } catch {
       setSynthError("Network error.");
     }
     setSynthLoading(false);
@@ -119,10 +121,55 @@ export default function RelevantArticles() {
           factcheck: factcheckRes._notFound ? "Not available" : factcheckRes["fact-check"]
         }
       });
-    } catch (e) {
+    } catch {
       alert("Failed to analyze article.");
     }
     setAnalyzing(null);
+  };
+
+  // Save handler
+  const handleSave = async (article) => {
+    setSavingMap((prev) => ({ ...prev, [article.url]: "saving" }));
+    try {
+      const res = await fetch(`${API_BASES.search}/api/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ url: article.url })
+      });
+      const data = await res.json();
+      if (res.ok && data.message === "success") {
+        setSavingMap((prev) => ({ ...prev, [article.url]: "saved" }));
+      } else {
+        setSavingMap((prev) => ({ ...prev, [article.url]: "error" }));
+      }
+    } catch {
+      setSavingMap((prev) => ({ ...prev, [article.url]: "error" }));
+    }
+    setTimeout(() => setSavingMap((prev) => ({ ...prev, [article.url]: undefined })), 2000);
+  };
+
+  // Vote handler (type: 1 for up, -1 for down)
+  const handleVote = async (article, type) => {
+    setVoteMap((prev) => ({ ...prev, [article.url]: { ...(prev[article.url] || {}), loading: true, error: '' } }));
+    const endpoint = type === 1 ? "/api/get_up_vote" : "/api/get_down_vote";
+    try {
+      const res = await fetch(`${API_BASES.search}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ url: article.url, vote_type: type })
+      });
+      const data = await res.json();
+      if (res.ok && data.vote_type === type) {
+        setVoteMap((prev) => ({ ...prev, [article.url]: { loading: false, vote: type, error: '' } }));
+      } else {
+        setVoteMap((prev) => ({ ...prev, [article.url]: { loading: false, vote: prev[article.url]?.vote || 0, error: data?.error || 'Vote failed' } }));
+      }
+    } catch {
+      setVoteMap((prev) => ({ ...prev, [article.url]: { loading: false, vote: prev[article.url]?.vote || 0, error: 'Network error' } }));
+    }
+    setTimeout(() => setVoteMap((prev) => ({ ...prev, [article.url]: { ...prev[article.url], error: '' } })), 2000);
   };
 
   return (
@@ -169,61 +216,98 @@ export default function RelevantArticles() {
 
       {!loading && !error && articles.length > 0 && (
         <div className="space-y-6 max-w-4xl mx-auto">
-          {articles.map((article, idx) => (
-            <div
-              key={article.url || idx}
-              className="relative flex flex-col sm:flex-row bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group"
-            >
-              {/* Save icon button, only visible on hover */}
-              <button
-                className="absolute top-3 right-3 bg-white/80 dark:bg-gray-700/80 text-primary-a0 dark:text-primary-a20 p-2 rounded-full shadow hover:bg-primary-a0/90 hover:text-white dark:hover:bg-primary-a20/90 transition-colors text-lg flex items-center justify-center border border-gray-200 dark:border-gray-600 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto"
-                type="button"
-                aria-label="Save article"
+          {articles.map((article, idx) => {
+            const saving = savingMap[article.url];
+            const vote = voteMap[article.url]?.vote || 0;
+            const voteLoading = voteMap[article.url]?.loading;
+            const voteError = voteMap[article.url]?.error;
+            // Default image URL (can be replaced with your own asset)
+            const defaultImg = "https://placehold.co/600";
+            return (
+              <div
+                key={article.url || idx}
+                className="relative flex flex-col sm:flex-row bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group"
               >
-                <FaRegBookmark />
-              </button>
-              <img
-                src={article.image_url}
-                alt="Article Thumbnail"
-                className="w-full sm:w-48 h-48 object-cover"
-              />
-              <div className="p-6 flex flex-col justify-between relative min-h-[12rem] pb-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                    {article.title}
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-300 mt-2">
-                    {article.brief_des_batches}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {article.tags?.map((tag, i) => (
-                      <span key={i} className="bg-lime-100 dark:bg-lime-700 text-lime-700 dark:text-lime-100 px-2 py-1 rounded text-xs">{tag}</span>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {article.author} | {article.date_publish}
-                  </p>
-                </div>
-                <a
-                  href={article.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 text-primary-a0 dark:text-primary-a20 hover:underline cursor-pointer self-start"
+                {/* Save icon button, hidden by default, visible on hover */}
+                <button
+                  className="absolute top-3 right-3 z-20 bg-white/80 dark:bg-gray-700/80 text-primary-a0 dark:text-primary-a20 p-2 rounded-full shadow hover:bg-primary-a0/90 hover:text-white dark:hover:bg-primary-a20/90 transition-colors text-lg flex items-center justify-center border border-gray-200 dark:border-gray-600 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto"
+                  type="button"
+                  aria-label="Save article"
+                  onClick={() => handleSave(article)}
+                  disabled={saving === 'saving' || saving === 'saved'}
+                  title={saving === 'saved' ? 'Saved' : 'Save article'}
+                  tabIndex={0}
                 >
-                  Read more →
-                </a>
+                  <FaRegBookmark />
+                  {saving === "saving" && <span className="ml-2 text-xs">Saving...</span>}
+                  {saving === "saved" && <span className="ml-2 text-xs text-green-600">Saved!</span>}
+                  {saving === "error" && <span className="ml-2 text-xs text-red-500">Error</span>}
+                </button>
+                <img
+                  src={article.image_url || defaultImg}
+                  alt="Article Thumbnail"
+                  className="w-full h-48 sm:w-72 sm:h-72 flex-shrink-0 object-cover bg-gray-200 dark:bg-gray-700"
+                  onError={e => { e.target.onerror = null; e.target.src = defaultImg; }}
+                />
+                <div className="p-6 flex flex-col justify-between relative min-h-[12rem] pb-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                      {article.title}
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-300 mt-2">
+                      {article.brief_des_batches}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {article.tags?.map((tag, i) => (
+                        <span key={i} className="bg-lime-100 dark:bg-lime-700 text-lime-700 dark:text-lime-100 px-2 py-1 rounded text-xs">{tag}</span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {article.author} | {article.date_publish}
+                    </p>
+                  </div>
+                  <a
+                    href={article.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 text-primary-a0 dark:text-primary-a20 hover:underline cursor-pointer self-start"
+                  >
+                    Read more →
+                  </a>
+                  {/* Upvote/Downvote buttons */}
+                  <div className="flex items-center gap-3 mt-4">
+                    <button
+                      className={`flex items-center px-2 py-1 rounded text-sm border ${vote === 1 ? 'bg-lime-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'} hover:bg-lime-600 disabled:opacity-60`}
+                      onClick={() => handleVote(article, 1)}
+                      disabled={voteLoading || vote === 1}
+                      title="Upvote"
+                    >
+                      <FaThumbsUp className="mr-1" /> Upvote
+                    </button>
+                    <button
+                      className={`flex items-center px-2 py-1 rounded text-sm border ${vote === -1 ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'} hover:bg-red-600 disabled:opacity-60`}
+                      onClick={() => handleVote(article, -1)}
+                      disabled={voteLoading || vote === -1}
+                      title="Downvote"
+                    >
+                      <FaThumbsDown className="mr-1" /> Downvote
+                    </button>
+                    {voteLoading && <span className="ml-2 text-xs text-gray-500">Voting...</span>}
+                    {voteError && <span className="ml-2 text-xs text-red-500">{voteError}</span>}
+                  </div>
+                </div>
+                {/* Analysis button, only visible on hover */}
+                <button
+                  className="absolute bottom-4 right-4 px-4 py-2 bg-lime-500 text-white rounded-lg shadow-lg transition-opacity duration-200 hover:bg-lime-600 z-10 opacity-0 group-hover:opacity-100 pointer-events-auto"
+                  onClick={() => handleAnalyze(article)}
+                  disabled={analyzing === article.url}
+                  title="Go to analysis page of this article"
+                >
+                  {analyzing === article.url ? "Analyzing..." : "Go to analysis page"}
+                </button>
               </div>
-              {/* Analysis button, only visible on hover */}
-              <button
-                className="absolute bottom-4 right-4 px-4 py-2 bg-lime-500 text-white rounded-lg shadow-lg transition-opacity duration-200 hover:bg-lime-600 z-10 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto"
-                onClick={() => handleAnalyze(article)}
-                disabled={analyzing === article.url}
-                title="Go to analysis page of this article"
-              >
-                {analyzing === article.url ? "Analyzing..." : "Go to analysis page"}
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@
 export const API_BASES = {
   auth: "http://19.168.0.102:6999",
   user: "http://19.168.0.102:6998",
-  search: "http://19.168.0.102:7001", // update if needed
-  // Add more services as needed
+  search: "http://19.168.0.102:7001",
+  analysis: "http://19.168.0.102:7003",
+  summariser: "http://19.168.0.102:7002"
 };
