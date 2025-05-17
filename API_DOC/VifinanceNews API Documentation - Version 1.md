@@ -431,7 +431,7 @@ To inspect the details of the API Structure, click on the toggle to read more on
 
 ### `/api/factcheck/`
 
-- **URL:** `http://localhost:7003/factcheck/`
+- **URL:** `http://localhost:7003/api/factcheck/`
 - **Method:** `POST`
 
 #### Input JSON
@@ -510,7 +510,7 @@ To inspect the details of the API Structure, click on the toggle to read more on
 
 ### `/api/toxicity_analysis/`
 
-- **URL:** `http://localhost:7003/toxicity_analysis/`
+- **URL:** `http://localhost:7003/api/toxicity_analysis/`
 - **Method:** `POST`
 
 #### Input JSON
@@ -573,7 +573,7 @@ To inspect the details of the API Structure, click on the toggle to read more on
 
 ### `/api/sentiment_analysis/`
 
-- **URL:** `http://localhost:7003/sentiment_analysis/`
+- **URL:** `http://localhost:7003/api/sentiment_analysis/`
 - **Method:** `POST`
 
 #### Input JSON
@@ -622,7 +622,7 @@ To inspect the details of the API Structure, click on the toggle to read more on
 
 ### `/api/biascheck/`
 
-- **URL:** `http://localhost:7003/biascheck/`
+- **URL:** `http://localhost:7003/api/biascheck/`
 - **Method:** `POST`
 
 #### Input JSON Format
@@ -1536,5 +1536,3 @@ Query parameters
 | timestamp     | string | optional | Optional ISO-8601 timestamp. Defaults to current server time.      |
 | status        | string | yes      | "success" if log was recorded successfully.                        |
 | message       | string | yes      | Summary message explaining the event or status.                    |
-
----

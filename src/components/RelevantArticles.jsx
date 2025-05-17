@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { FaRegBookmark, FaThumbsUp, FaThumbsDown } from "react-icons/fa";
 import { API_BASES } from "../config";
 
@@ -15,10 +15,8 @@ export default function RelevantArticles() {
   const [synthLoading, setSynthLoading] = useState(false);
   const [synthesis, setSynthesis] = useState("");
   const [synthError, setSynthError] = useState("");
-  const [analyzing, setAnalyzing] = useState(null); // url being analyzed
   const [savingMap, setSavingMap] = useState({}); // { [url]: 'idle' | 'saving' | 'saved' | 'error' }
   const [voteMap, setVoteMap] = useState({}); // { [url]: { loading: false, vote: 0, error: '' } }
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!query) {
@@ -75,56 +73,6 @@ export default function RelevantArticles() {
       setSynthError("Network error.");
     }
     setSynthLoading(false);
-  };
-
-  // Analysis click handler
-  const handleAnalyze = async (article) => {
-    setAnalyzing(article.url);
-    console.log("Analyzing article:", article.url);
-    try {
-      // Helper to fetch and handle 404
-      const safeFetch = async (url, body) => {
-        try {
-          const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-          });
-          if (res.status === 404) return { _notFound: true };
-          return await res.json();
-        } catch {
-          return { _notFound: true };
-        }
-      };
-
-      // Run all 4 requests in parallel
-      const [summaryRes, toxicityRes, sentimentRes, factcheckRes] = await Promise.all([
-        safeFetch("http://localhost:7002/api/summarize/", { url: article.url }),
-        safeFetch("http://localhost:7003/api/toxicity_analysis/", { url: article.url }),
-        safeFetch("http://localhost:7003/api/sentiment_analysis/", { url: article.url }),
-        safeFetch("http://localhost:7003/api/factcheck/", { url: article.url }),
-      ]);
-
-      const all404 = [summaryRes, toxicityRes, sentimentRes, factcheckRes].every(r => r._notFound);
-      if (all404) {
-        alert("All analysis services are unavailable. Please try again later.");
-        setAnalyzing(null);
-        return;
-      }
-
-      navigate("/analysis", {
-        state: {
-          article,
-          summary: summaryRes._notFound ? "Not available" : summaryRes.summary,
-          toxicity: toxicityRes._notFound ? null : JSON.stringify(toxicityRes.toxicity_analysis),
-          sentiment: sentimentRes._notFound ? null : sentimentRes.sentiment_analysis,
-          factcheck: factcheckRes._notFound ? "Not available" : factcheckRes["fact-check"]
-        }
-      });
-    } catch {
-      alert("Failed to analyze article.");
-    }
-    setAnalyzing(null);
   };
 
   // Save handler
@@ -296,15 +244,6 @@ export default function RelevantArticles() {
                     {voteError && <span className="ml-2 text-xs text-red-500">{voteError}</span>}
                   </div>
                 </div>
-                {/* Analysis button, only visible on hover */}
-                <button
-                  className="absolute bottom-4 right-4 px-4 py-2 bg-lime-500 text-white rounded-lg shadow-lg transition-opacity duration-200 hover:bg-lime-600 z-10 opacity-0 group-hover:opacity-100 pointer-events-auto"
-                  onClick={() => handleAnalyze(article)}
-                  disabled={analyzing === article.url}
-                  title="Go to analysis page of this article"
-                >
-                  {analyzing === article.url ? "Analyzing..." : "Go to analysis page"}
-                </button>
               </div>
             );
           })}

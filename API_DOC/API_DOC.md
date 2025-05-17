@@ -286,9 +286,9 @@ CODE: 200 OK
 
 ## AnalysisService
 
-### /factcheck/
+### /api/factcheck/
 
-URL: `http://localhost:7003/factcheck/`  
+URL: `http://localhost:7003/api/factcheck/`  
 Method: `POST`
 
 #### Input JSON Format
@@ -340,9 +340,9 @@ CODE: 200 OK
 
 ---
 
-### /toxicity_analysis/
+### /api/toxicity_analysis/
 
-URL: `http://localhost:7003/toxicity_analysis/`  
+URL: `http://localhost:7003/api/toxicity_analysis/`  
 Method: `POST`
 
 #### Input JSON Format
@@ -402,9 +402,9 @@ CODE: 200 OK
 
 ---
 
-### /sentiment_analysis/
+### /api/sentiment_analysis/
 
-URL: `http://localhost:7003/sentiment_analysis/`  
+URL: `http://localhost:7003/api/sentiment_analysis/`  
 Method: `POST`
 
 #### Input JSON Format
@@ -449,9 +449,9 @@ CODE: 200 OK
 
 ---
 
-### /biascheck/
+### /api/biascheck/
 
-URL: `http://localhost:7003/biascheck/`  
+URL: `http://localhost:7003/api/biascheck/`  
 Method: `POST`
 
 #### Input JSON Format
@@ -1200,4 +1200,3 @@ CODE: 200 OK
   ```
 
 ---
-````markdown

@@ -4,82 +4,59 @@ import { API_BASES } from "../config";
 
 export default function AnalysisPage() {
   const location = useLocation();
-  let { article, summary: initSummary, toxicity: initToxicity, sentiment: initSentiment, factcheck: initFactcheck } = location.state || {};
-
-  const [summary, setSummary] = useState(initSummary);
-  const [toxicity, setToxicity] = useState(initToxicity);
-  const [sentiment, setSentiment] = useState(initSentiment);
-  const [factcheck, setFactcheck] = useState(initFactcheck);
+  let { article } = location.state || {};
+  const [summary, setSummary] = useState(null);
+  const [toxicity, setToxicity] = useState(null);
+  const [sentiment, setSentiment] = useState(null);
+  const [factcheck, setFactcheck] = useState(null);
   const [bias, setBias] = useState(null);
   const [factReferences, setFactReferences] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Fetch analysis if not provided
   useEffect(() => {
     if (!article?.url) return;
+    setLoading(true);
+    setError("");
 
-    // Fetch summary if not present
-    if (!summary) {
-      fetch(`${API_BASES.summariser}/summarize/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: article.url })
-      })
-        .then(res => res.json())
-        .then(data => setSummary(data.summary))
-        .catch(() => setSummary("Không thể tóm tắt bài viết này."));
-    }
+    // Helper to fetch and handle 404
+    const safeFetch = async (url, body) => {
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        if (res.status === 404) return { _notFound: true };
+        return await res.json();
+      } catch {
+        return { _notFound: true };
+      }
+    };
 
-    // Fetch toxicity if not present
-    if (!toxicity) {
-      fetch(`${API_BASES.analysis}/toxicity_analysis/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: article.url })
-      })
-        .then(res => res.json())
-        .then(data => setToxicity(data.toxicity_analysis))
-        .catch(() => setToxicity("Not available"));
-    }
-
-    // Fetch sentiment if not present
-    if (!sentiment) {
-      fetch(`${API_BASES.analysis}/sentiment_analysis/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: article.url })
-      })
-        .then(res => res.json())
-        .then(data => setSentiment(data.sentiment_analysis))
-        .catch(() => setSentiment(null));
-    }
-
-    // Fetch factcheck if not present
-    if (!factcheck) {
-      fetch(`${API_BASES.analysis}/factcheck/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: article.url })
-      })
-        .then(res => res.json())
-        .then(data => {
-          setFactcheck(data);
-          if (data["Danh sách các dẫn chứng"]) setFactReferences(data["Danh sách các dẫn chứng"]);
-        })
-        .catch(() => setFactcheck(null));
-    } else if (factcheck && factcheck["Danh sách các dẫn chứng"]) {
-      setFactReferences(factcheck["Danh sách các dẫn chứng"]);
-    }
-
-    // Fetch bias check
-    fetch(`${API_BASES.analysis}/biascheck/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: article.url })
-    })
-      .then(res => res.json())
-      .then(data => setBias(data))
-      .catch(() => setBias(null));
-  // eslint-disable-next-line
+    // Run all 5 requests in parallel
+    Promise.all([
+      safeFetch(`${API_BASES.summariser}/summarize/`, { url: article.url }),
+      safeFetch(`${API_BASES.analysis}/toxicity_analysis/`, { url: article.url }),
+      safeFetch(`${API_BASES.analysis}/sentiment_analysis/`, { url: article.url }),
+      safeFetch(`${API_BASES.analysis}/api/factcheck/`, { url: article.url }),
+      safeFetch(`${API_BASES.analysis}/api/biascheck/`, { url: article.url })
+    ]).then(([summaryRes, toxicityRes, sentimentRes, factcheckRes, biasRes]) => {
+      if ([summaryRes, toxicityRes, sentimentRes, factcheckRes, biasRes].every(r => r._notFound)) {
+        setError("All analysis services are unavailable. Please try again later.");
+        setLoading(false);
+        return;
+      }
+      setSummary(summaryRes._notFound ? null : summaryRes.summary);
+      setToxicity(toxicityRes._notFound ? null : toxicityRes.toxicity_analysis);
+      setSentiment(sentimentRes._notFound ? null : sentimentRes.sentiment_analysis);
+      setFactcheck(factcheckRes._notFound ? null : factcheckRes);
+      setBias(biasRes._notFound ? null : biasRes);
+      if (factcheckRes && factcheckRes["Danh sách các dẫn chứng"]) {
+        setFactReferences(factcheckRes["Danh sách các dẫn chứng"]);
+      }
+      setLoading(false);
+    });
   }, [article?.url]);
 
   // Parse toxicity if it's a JSON string
@@ -96,6 +73,22 @@ export default function AnalysisPage() {
     return (
       <div className="min-h-screen flex items-center justify-center text-xl text-gray-700 dark:text-gray-200">
         No analysis data. Please select an article from Relevant Articles.
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-xl text-gray-700 dark:text-gray-200">
+        Loading analysis...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-xl text-red-600 dark:text-red-400">
+        {error}
       </div>
     );
   }
