@@ -813,7 +813,7 @@ CODE: 200 OK
 
 ### /api/user/profile
 
-URL: `http://localhost:6998/api/user/profile`  
+URL: `http://172.8.8.122:6998/api/user/profile`  
 Method: `GET`
 
 #### Input: None (requires session cookie)
@@ -852,7 +852,7 @@ CODE: 200 OK
 
 ### /api/user/update
 
-URL: `http://localhost:6998/api/user/update`  
+URL: `http://172.8.8.122:6998/api/user/update`  
 Method: `PUT`
 
 #### Input JSON Format
@@ -904,7 +904,7 @@ CODE: 200 OK
 
 ### /api/user/delete
 
-URL: `http://localhost:6998/api/user/delete`  
+URL: `http://172.8.8.122:6998/api/user/delete`  
 Method: `DELETE`
 
 #### Input: None
@@ -943,7 +943,7 @@ CODE: 200 OK
 
 ### /api/avatar/upload
 
-URL: `http://localhost:6998/api/avatar/upload`  
+URL: `http://172.8.8.122:6998/api/avatar/upload`  
 Method: `POST`
 
 #### Input: multipart/form-data
@@ -1200,3 +1200,4 @@ CODE: 200 OK
   ```
 
 ---
+````markdown

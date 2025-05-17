@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { API_BASES } from "../config";
 
 export default function OtpVerification({ onBack, onSuccess, email, cardClassName = "" }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -42,7 +43,7 @@ export default function OtpVerification({ onBack, onSuccess, email, cardClassNam
       return;
     }
     try {
-      const res = await fetch("http://localhost:6999/api/login", {
+      const res = await fetch(`${API_BASES.auth}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

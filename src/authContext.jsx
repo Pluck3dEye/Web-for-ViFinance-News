@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASES } from "./config";
 
 const AuthContext = createContext();
 
@@ -10,13 +11,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     async function fetchUser() {
       try {
-        const authRes = await fetch('http://localhost:6999/api/auth-status', {
+        const authRes = await fetch(`${API_BASES.auth}/api/auth-status`, {
           credentials: 'include',
         });
         const authData = await authRes.json();
         if (authData?.loggedIn) {
           // Fetch user profile from UserService
-          const profileRes = await fetch('http://localhost:6998/api/user/profile', {
+          const profileRes = await fetch(`${API_BASES.user}/api/user/profile`, {
             credentials: 'include',
           });
           if (profileRes.ok) {
@@ -50,7 +51,7 @@ export const AuthProvider = ({ children }) => {
     }
     if (userId) {
       try {
-        const profileRes = await fetch('http://localhost:6998/api/user/profile', {
+        const profileRes = await fetch(`${API_BASES.user}/api/user/profile`, {
           credentials: 'include',
         });
         if (profileRes.ok) {
@@ -78,7 +79,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    fetch('http://localhost:6999/api/logout', {
+    fetch(`${API_BASES.auth}/api/logout`, {
       method: 'POST',
       credentials: 'include',
     }).then(async (res) => {

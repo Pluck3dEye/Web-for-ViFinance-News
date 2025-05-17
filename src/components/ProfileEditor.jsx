@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../authContext";
 import { useNavigate } from "react-router-dom";
+import { API_BASES } from "../config";
 
 export default function ProfileEditor() {
   const { user, logout, updateUser } = useAuth();
@@ -43,7 +44,7 @@ export default function ProfileEditor() {
         const formData = new FormData();
         formData.append("avatar", file);
         try {
-          const res = await fetch("http://localhost:6998/api/avatar/upload", {
+          const res = await fetch(`${API_BASES.user}/api/avatar/upload`, {
             method: "POST",
             credentials: "include",
             body: formData,
@@ -51,7 +52,7 @@ export default function ProfileEditor() {
           const data = await res.json();
           if (res.ok && data.avatarUrl) {
             // Step 2: Update avatar link in profile
-            const res2 = await fetch("http://localhost:6998/api/user/avatar", {
+            const res2 = await fetch(`${API_BASES.user}/api/user/avatar`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               credentials: "include",
@@ -89,7 +90,7 @@ export default function ProfileEditor() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:6998/api/user/update-info", {
+      const res = await fetch(`${API_BASES.user}/api/user/update-info`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -127,7 +128,7 @@ export default function ProfileEditor() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:6998/api/user/change-password", {
+      const res = await fetch(`${API_BASES.user}/api/user/change-password`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -153,7 +154,7 @@ export default function ProfileEditor() {
     setError("");
     setMessage("");
     try {
-      const res = await fetch("http://localhost:6998/api/user/delete", {
+      const res = await fetch(`${API_BASES.user}/api/user/delete`, {
         method: "DELETE",
         credentials: "include",
       });

@@ -1,6 +1,6 @@
 # UserService API Documentation
 
-Base URL: `http://localhost:6998`
+Base URL: `http://172.8.8.122:6998`
 
 ## Authentication
 

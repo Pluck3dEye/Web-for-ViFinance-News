@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaRegBookmark } from "react-icons/fa";
+import { API_BASES } from "../config";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -31,7 +32,7 @@ export default function RelevantArticles() {
     setSynthesis("");
     setSynthError("");
     setSynthLoading(false);
-    fetch("http://localhost:7001/api/get_cached_result", {
+    fetch(`${API_BASES.search}/api/get_cached_result`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query })
