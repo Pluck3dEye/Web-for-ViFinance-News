@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASES } from "../config";
 import OtpVerification from "./OtpVerification";
 
 export default function AuthTabs({ onOtpRequired }) {
@@ -104,7 +105,7 @@ function LoginForm({ onSwitch, onForgot, onOtpRequired }) {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:6999/api/verify", {
+      const res = await fetch(`${API_BASES.auth}/api/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -145,7 +146,7 @@ function LoginForm({ onSwitch, onForgot, onOtpRequired }) {
           return;
         }
         try {
-          const res = await fetch("http://localhost:6999/api/google-login", {
+          const res = await fetch(`${API_BASES.auth}/api/google-login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -241,7 +242,7 @@ function RegisterForm({ onSwitch, onRegisterSuccess }) {
     }
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:6999/api/register", {
+      const res = await fetch(`${API_BASES.auth}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
