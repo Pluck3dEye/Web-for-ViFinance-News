@@ -64,12 +64,40 @@ export default function SavedArticles() {
                 key={article.url || idx}
                 className="flex flex-col sm:flex-row bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
               >
-                {/* If you have image, you can add it here. Otherwise, skip image. */}
+                {article.image_url && (
+                  <img
+                    src={article.image_url}
+                    alt="Article Thumbnail"
+                    className="w-40 h-28 object-cover bg-gray-200 dark:bg-gray-700 flex-shrink-0"
+                    onError={e => { e.target.onerror = null; e.target.src = 'https://placehold.co/600x400'; }}
+                  />
+                )}
                 <div className="p-6 flex flex-col justify-between w-full">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
                       {article.title}
                     </h2>
+                    {article.brief_des_batches && (
+                      <p className="text-gray-600 dark:text-gray-300 mt-2">
+                        {article.brief_des_batches}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {article.tags?.map((tag, i) => (
+                        <span key={i} className="bg-lime-100 dark:bg-lime-700 text-lime-700 dark:text-lime-100 px-2 py-1 rounded text-xs">{tag}</span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {article.author} | {article.date_publish}
+                    </p>
+                    {/* Upvotes display */}
+                    {typeof article.upvotes !== 'undefined' && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-lime-500 font-bold">▲</span>
+                        <span className="text-sm font-semibold">{article.upvotes}</span>
+                        <span className="text-xs text-gray-400">Upvotes</span>
+                      </div>
+                    )}
                   </div>
                   {article.url && (
                     <a

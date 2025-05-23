@@ -14,6 +14,7 @@ export default function RelevantArticles() {
   const [error, setError] = useState("");
   const [synthLoading, setSynthLoading] = useState(false);
   const [synthesis, setSynthesis] = useState("");
+  const [synthReferences, setSynthReferences] = useState(null); // <-- new
   const [synthError, setSynthError] = useState("");
   const [savingMap, setSavingMap] = useState({}); // { [url]: 'idle' | 'saving' | 'saved' | 'error' }
   const [voteMap, setVoteMap] = useState({}); // { [url]: { loading: false, vote: 0, error: '' } }
@@ -54,27 +55,33 @@ export default function RelevantArticles() {
   }, [query]);
 
   const handleSynthesis = async () => {
-    setSynthLoading(true);
-    setSynthError("");
-    setSynthesis("");
-    try {
-      const urls = articles.map(a => a.url);
-      const res = await fetch("/api/synthesis/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(urls)
-      });
-      const data = await res.json();
-      if (res.ok && data.synthesis) {
-        setSynthesis(data.synthesis);
-      } else {
-        setSynthError("No synthesis result.");
-      }
-    } catch {
-      setSynthError("Network error.");
+  setSynthLoading(true);
+  setSynthError("");
+  setSynthesis("");
+  setSynthReferences(null);
+  try {
+    const urls = articles.map(a => a.url);
+    const res = await fetch(`${API_BASES.summariser}/api/synthesis/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(urls)
+    });
+    const data = await res.json();
+    if (
+      res.ok &&
+      data.synthesis &&
+      typeof data.synthesis.synthesis_paragraph === "string"
+    ) {
+      setSynthesis(data.synthesis.synthesis_paragraph);
+      setSynthReferences(data.synthesis.reference || null);
+    } else {
+      setSynthError(data?.error || "No synthesis result.");
     }
-    setSynthLoading(false);
-  };
+  } catch {
+    setSynthError("Network error.");
+  }
+  setSynthLoading(false);
+};
 
   // Navigate to analysis page
   const handleAnalyze = (article) => {
@@ -112,15 +119,18 @@ export default function RelevantArticles() {
     setVoteMap((prev) => ({ ...prev, [article.url]: { ...(prev[article.url] || {}), loading: true, error: '' } }));
     const endpoint = type === 1 ? "/api/get_up_vote" : "/api/get_down_vote";
     try {
+      console.log("Request body:", JSON.stringify({ url: article.url, vote_type: type }));
       const res = await fetch(`${API_BASES.search}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ url: article.url, vote_type: type })
+        body: JSON.stringify({ url: article.url })
       });
       const data = await res.json();
       if (res.ok && data.vote_type === type) {
         setVoteMap((prev) => ({ ...prev, [article.url]: { loading: false, vote: type, error: '' } }));
+        // Optionally update upvotes count in UI
+        setArticles((prev) => prev.map(a => a.url === article.url ? { ...a, upvotes: (a.upvotes || 0) + (type === 1 ? 1 : type === -1 && a.upvotes > 0 ? -1 : 0) } : a));
       } else {
         setVoteMap((prev) => ({ ...prev, [article.url]: { loading: false, vote: prev[article.url]?.vote || 0, error: data?.error || 'Vote failed' } }));
       }
@@ -129,6 +139,43 @@ export default function RelevantArticles() {
     }
     setTimeout(() => setVoteMap((prev) => ({ ...prev, [article.url]: { ...prev[article.url], error: '' } })), 2000);
   };
+
+  // Helper to parse synthesis text and references, and render citations
+  function renderSynthesisWithCitations(synthesis, references) {
+    if (!synthesis) return null;
+    if (!references || typeof synthesis !== 'string') return <span>{synthesis}</span>;
+
+    // 1. Match [citation] instead of ([citation])
+    const citationRegex = /\[([^\]]+)\]/g;
+    let match;
+    const keyOrder = [];
+    const keyToNumber = {};
+    let idx = 1;
+    while ((match = citationRegex.exec(synthesis)) !== null) {
+      const key = match[1];
+      if (!(key in keyToNumber)) {
+        keyToNumber[key] = String(idx);
+        keyOrder.push(key);
+        idx++;
+      }
+    }
+
+    // 2. Replace citations in text with numbered links
+    let html = synthesis.replace(citationRegex, (m, key) => {
+      const number = keyToNumber[key];
+      const ref = references[number];
+      if (ref && ref.url) {
+        return `<sup><a href="${ref.url}" target="_blank" rel="noopener noreferrer" style="color:rgb(26, 175, 43); text-decoration: underline;">[${number}]</a></sup>`;
+      }
+      return `<sup>[${number}]</sup>`;
+    });
+
+    return (
+      <>
+        <span className="block text-base leading-relaxed" dangerouslySetInnerHTML={{ __html: html }} />
+      </>
+    );
+  }
 
   return (
     <div className="bg-gray-100 dark:bg-gray-900 min-h-screen py-10 px-4 transition-colors duration-300">
@@ -157,10 +204,10 @@ export default function RelevantArticles() {
           )}
         </button>
         {synthError && <div className="text-red-500 text-center mb-2 font-semibold">{synthError}</div>}
-        {synthesis && (
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-lg shadow max-w-2xl text-gray-800 dark:text-gray-100 text-center mt-2 animate-fade-in">
+        {(synthesis || synthReferences) && (
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-lg shadow max-w-2xl text-gray-800 dark:text-gray-100 text-left mt-2 animate-fade-in w-full">
             <span className="block text-base font-semibold mb-2 text-primary-a0 dark:text-primary-a20">Synthesis Result</span>
-            <span className="block text-base leading-relaxed">{synthesis}</span>
+            {renderSynthesisWithCitations(synthesis, synthReferences)}
           </div>
         )}
       </div>
@@ -222,6 +269,12 @@ export default function RelevantArticles() {
                     <p className="text-xs text-gray-400 mt-1">
                       {article.author} | {article.date_publish}
                     </p>
+                    {/* Upvotes display */}
+                    <div className="flex items-center gap-2 mt-1">
+                      <FaThumbsUp className="text-lime-500" />
+                      <span className="text-sm font-semibold">{article.upvotes || 0}</span>
+                      <span className="text-xs text-gray-400">Upvotes</span>
+                    </div>
                   </div>
                   <a
                     href={article.url}

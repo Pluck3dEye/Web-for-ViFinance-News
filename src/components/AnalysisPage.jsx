@@ -34,29 +34,59 @@ export default function AnalysisPage() {
       }
     };
 
-    // Run all 5 requests in parallel
-    Promise.all([
-      safeFetch(`${API_BASES.summariser}/summarize/`, { url: article.url }),
-      safeFetch(`${API_BASES.analysis}/toxicity_analysis/`, { url: article.url }),
-      safeFetch(`${API_BASES.analysis}/sentiment_analysis/`, { url: article.url }),
-      safeFetch(`${API_BASES.analysis}/api/factcheck/`, { url: article.url }),
-      safeFetch(`${API_BASES.analysis}/api/biascheck/`, { url: article.url })
-    ]).then(([summaryRes, toxicityRes, sentimentRes, factcheckRes, biasRes]) => {
+    // Sequentially run all 5 requests, with 15s delay between each
+    const runSequentialAnalysis = async () => {
+      // 1. Summary
+      const summaryRes = await safeFetch(`${API_BASES.summariser}/api/summarize/`, { url: article.url });
+      setSummary(summaryRes._notFound ? null : summaryRes.summary);
+      await new Promise(r => setTimeout(r, 15000));
+
+      // 2. Toxicity
+      const toxicityRes = await safeFetch(`${API_BASES.analysis}/api/toxicity_analysis/`, { url: article.url });
+      setToxicity(toxicityRes._notFound ? null : toxicityRes.toxicity_analysis);
+      await new Promise(r => setTimeout(r, 15000));
+
+      // 3. Sentiment
+      const sentimentRes = await safeFetch(`${API_BASES.analysis}/api/sentiment_analysis/`, { url: article.url });
+      setSentiment(sentimentRes._notFound ? null : sentimentRes.sentiment_analysis);
+      await new Promise(r => setTimeout(r, 15000));
+
+      // 4. Factcheck
+      const factcheckRes = await safeFetch(`${API_BASES.analysis}/api/factcheck/`, { url: article.url });
+      let factObj = null;
+      let factRefs = null;
+      if (factcheckRes && factcheckRes["fact-check"]) {
+        if (typeof factcheckRes["fact-check"] === "object") {
+          factObj = factcheckRes["fact-check"];
+          if (factObj["Danh sách các dẫn chứng"]) {
+            factRefs = factObj["Danh sách các dẫn chứng"];
+          }
+        }
+      }
+      setFactcheck(factObj);
+      setFactReferences(factRefs);
+      await new Promise(r => setTimeout(r, 15000));
+
+      // 5. Bias
+      const biasRes = await safeFetch(`${API_BASES.analysis}/api/biascheck/`, { url: article.url });
+      let biasObj = null;
+      if (biasRes && biasRes.data && biasRes.data["bias-check"]) {
+        biasObj = biasRes.data["bias-check"];
+      } else if (biasRes && biasRes["bias-check"]) {
+        biasObj = biasRes["bias-check"];
+      } else if (biasRes && biasRes.message) {
+        biasObj = { message: biasRes.message };
+      }
+      setBias(biasObj);
+
+      // If all failed
       if ([summaryRes, toxicityRes, sentimentRes, factcheckRes, biasRes].every(r => r._notFound)) {
         setError("All analysis services are unavailable. Please try again later.");
-        setLoading(false);
-        return;
-      }
-      setSummary(summaryRes._notFound ? null : summaryRes.summary);
-      setToxicity(toxicityRes._notFound ? null : toxicityRes.toxicity_analysis);
-      setSentiment(sentimentRes._notFound ? null : sentimentRes.sentiment_analysis);
-      setFactcheck(factcheckRes._notFound ? null : factcheckRes);
-      setBias(biasRes._notFound ? null : biasRes);
-      if (factcheckRes && factcheckRes["Danh sách các dẫn chứng"]) {
-        setFactReferences(factcheckRes["Danh sách các dẫn chứng"]);
       }
       setLoading(false);
-    });
+    };
+
+    runSequentialAnalysis();
   }, [article?.url]);
 
   // Parse toxicity if it's a JSON string
@@ -69,18 +99,28 @@ export default function AnalysisPage() {
     }
   }
 
+  // Helper for Vietnamese sentiment translation and color
+  function getSentimentInfo(label) {
+    switch (label) {
+      case "Very Negative":
+        return { vi: "Rất tiêu cực", color: "text-red-600 dark:text-red-400" };
+      case "Negative":
+        return { vi: "Tiêu cực", color: "text-orange-500 dark:text-orange-400" };
+      case "Neutral":
+        return { vi: "Trung lập", color: "text-yellow-500 dark:text-yellow-300" };
+      case "Positive":
+        return { vi: "Tích cực", color: "text-lime-600 dark:text-lime-400" };
+      case "Very Positive":
+        return { vi: "Rất tích cực", color: "text-green-600 dark:text-green-400" };
+      default:
+        return { vi: label, color: "" };
+    }
+  }
+
   if (!article) {
     return (
       <div className="min-h-screen flex items-center justify-center text-xl text-gray-700 dark:text-gray-200">
         No analysis data. Please select an article from Relevant Articles.
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-xl text-gray-700 dark:text-gray-200">
-        Loading analysis...
       </div>
     );
   }
@@ -98,14 +138,20 @@ export default function AnalysisPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
         {/* Left Column */}
         <div className="md:col-span-2 space-y-10">
-          <Section title="Summary" text={summary || "No summary available."} />
+          <Section title="Summary" text={
+            summary === null
+              ? <span className="text-gray-400">Getting result...</span>
+              : summary || <span className="text-gray-400">No summary available.</span>
+          } />
           <Section title="Toxicity Analysis">
-            {parsedToxicity && typeof parsedToxicity === "object" ? (
+            {toxicity === null ? (
+              <span className="text-gray-400">Getting result...</span>
+            ) : parsedToxicity && typeof parsedToxicity === "object" ? (
               <ul className="space-y-2">
                 {Object.entries(parsedToxicity).map(([label, value]) => (
                   <li key={label} className="flex justify-between">
-                    <span className="font-medium">{translateToxicity(label)}:</span>
-                    <span>{(value * 100).toFixed(1)}%</span>
+                    <span className="font-medium text-primary-a0 dark:text-primary-a20">{label}:</span>
+                    <span>{(value * 100).toFixed(2)}%</span>
                   </li>
                 ))}
               </ul>
@@ -116,27 +162,36 @@ export default function AnalysisPage() {
             )}
           </Section>
           <Section title="Sentiment Analysis">
-            {sentiment ? (
+            {sentiment === null ? (
+              <span className="text-gray-400">Getting result...</span>
+            ) : sentiment ? (
               <div>
-                <div className="font-medium">Label: <span className="text-lime-600 dark:text-lime-400">{sentiment.sentiment_label}</span></div>
-                <div>Confidence: {(sentiment.sentiment_score * 100).toFixed(1)}%</div>
+                <div className="font-medium text-primary-a0 dark:text-primary-a20">
+                  Mức độ cảm xúc:{" "}
+                  <span className={getSentimentInfo(sentiment.sentiment_label).color}>
+                    {getSentimentInfo(sentiment.sentiment_label).vi}
+                  </span>
+                </div>
+                <div>Độ tin cậy: {(sentiment.sentiment_score * 100).toFixed(2)}%</div>
               </div>
             ) : (
               <span>No sentiment analysis available.</span>
             )}
           </Section>
           <Section title="Bias Check">
-            {bias ? (
-              bias["Loại thiên kiến"] ? (
+            {bias === null ? (
+              <span className="text-gray-400">Getting result...</span>
+            ) : bias ? (
+              bias["Loại thiên kiến"] || bias["bias_type"] ? (
                 <div>
-                  <div className="mb-2"><span className="font-medium">Type:</span> {bias["Loại thiên kiến"]}</div>
-                  <div className="mb-2"><span className="font-medium">Impact Level:</span> {bias["Mức độ ảnh hưởng"]}</div>
-                  <div className="mb-2"><span className="font-medium">Analysis:</span> {bias["Phân tích ngắn gọn"]}</div>
-                  {Array.isArray(bias["Câu hỏi phản biện"]) && (
+                  <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Loại thiên kiến:</span> {bias["Loại thiên kiến"] || bias["bias_type"]}</div>
+                  <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Mức độ ảnh hưởng:</span> {bias["Mức độ ảnh hưởng"] || bias["impact_level"]}</div>
+                  <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Phân tích ngắn gọn:</span> {bias["Phân tích ngắn gọn"] || bias["analysis"]}</div>
+                  {Array.isArray(bias["Câu hỏi phản biện"] || bias["socratic_questions"]) && (
                     <div className="mt-2">
-                      <div className="font-medium mb-1">Critical Questions:</div>
+                      <div className="font-medium mb-1 text-primary-a0 dark:text-primary-a20">Câu hỏi phản biện:</div>
                       <ul className="list-disc list-inside text-sm space-y-1">
-                        {bias["Câu hỏi phản biện"].map((q, i) => (
+                        {(bias["Câu hỏi phản biện"] || bias["socratic_questions"]).map((q, i) => (
                           <li key={i}>{q}</li>
                         ))}
                       </ul>
@@ -153,30 +208,15 @@ export default function AnalysisPage() {
             )}
           </Section>
           <Section title="Fact Check">
-            {factcheck && typeof factcheck === "object" && factcheck["Kết luận"] ? (
+            {factcheck === null ? (
+              <span className="text-gray-400">Getting result...</span>
+            ) : factcheck && typeof factcheck === "object" && factcheck["Kết luận"] ? (
               <div>
-                <div className="mb-2"><span className="font-medium">Conclusion:</span> {factcheck["Kết luận"]}</div>
-                <div className="mb-2"><span className="font-medium">Evidence Analysis:</span> {factcheck["Phân tích bằng chứng"]}</div>
-                <div className="mb-2"><span className="font-medium">Reliability:</span> {factcheck["Mức độ tin cậy"]}</div>
-                <div className="mb-2"><span className="font-medium">Explanation:</span> {factcheck["Giải thích"]}</div>
-                <div className="mb-2"><span className="font-medium">Advice:</span> {factcheck["Lời khuyên cho người dùng về cách nhìn nhận hiện tại"]}</div>
-                {factReferences && (
-                  <div className="mt-4">
-                    <div className="font-medium mb-2">References:</div>
-                    <ol className="list-decimal list-inside space-y-2">
-                      {Object.entries(factReferences).map(([refKey, ref]) => (
-                        <li key={refKey} className="text-sm">
-                          <span className="font-semibold">{refKey.replace(/\[|\]/g, "")}.</span>{" "}
-                          <span className="italic">{ref.title}</span>.{" "}
-                          <span>{ref.publisher}.</span>{" "}
-                          <a href={ref.url} target="_blank" rel="noopener noreferrer" className="text-primary-a0 dark:text-primary-a20 underline">
-                            [Link]
-                          </a>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
+                <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Kết luận:</span> <span dangerouslySetInnerHTML={{__html: linkifyReferences(factcheck["Kết luận"], factReferences)}} /></div>
+                <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Phân tích bằng chứng:</span> <span dangerouslySetInnerHTML={{__html: linkifyReferences(factcheck["Phân tích bằng chứng"], factReferences)}} /></div>
+                <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Mức độ tin cậy:</span> {factcheck["Mức độ tin cậy"]}</div>
+                <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Giải thích:</span> <span dangerouslySetInnerHTML={{__html: linkifyReferences(factcheck["Giải thích"], factReferences)}} /></div>
+                <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Lời khuyên cho người dùng về cách nhìn nhận hiện tại:</span> <span dangerouslySetInnerHTML={{__html: linkifyReferences(factcheck["Lời khuyên cho người dùng về cách nhìn nhận hiện tại"], factReferences)}} /></div>
               </div>
             ) : factcheck && factcheck["message"] ? (
               <span>{factcheck["message"]}</span>
@@ -237,14 +277,21 @@ function Tag({ text }) {
   );
 }
 
-function translateToxicity(label) {
-  // Vietnamese to English mapping
-  const map = {
-    "Công kích danh tính": "Identity Attack",
-    "Mức Độ Thô Tục": "Profanity",
-    "Tính Xúc Phạm": "Insult",
-    "Tính Đe Doạ": "Threat",
-    "Tính Độc Hại": "Toxicity"
-  };
-  return map[label] || label;
+// Helper to hyperlink [1], [2], ... in text using references
+function linkifyReferences(text, references) {
+  if (!references || typeof text !== 'string') return text;
+  const refKeys = Object.keys(references);
+  if (refKeys.length === 0) return text;
+  // Build a regex to match [1], [2], ...
+  // Escape numbers only, e.g. [1], [2], ...
+  const numbers = refKeys.map(k => k.replace(/\[|\]/g, ''));
+  const refPattern = new RegExp(`\\[(${numbers.join('|')})\\]`, 'g');
+  return text.replace(refPattern, (match, p1) => {
+    const key = `[${p1}]`;
+    const ref = references[key];
+    if (ref && ref.url) {
+      return `<a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="text-primary-a0 dark:text-primary-a20 underline">${key}</a>`;
+    }
+    return match;
+  });
 }

@@ -396,8 +396,47 @@ To inspect the details of the API Structure, click on the toggle to read more on
 **Success Response**
 ```json
 {
-  "synthesis": "Giá xăng dầu tại Việt Nam được điều chỉnh định kỳ..."
+    "synthesis": 
+        {
+    "synthesis_paragraph": "Giá vàng liên tục biến động trong giai đoạn 2024-2025, chịu tác động của nhiều yếu tố kinh tế và chính trị. Vào tháng 4/2025, giá vàng miếng SJC đạt đỉnh mới, trong khi giá vàng nhẫn trơn SJC có xu hướng ổn định ([VnExpress, 2025a]). Tuy nhiên, đến giữa tháng 5/2025, giá vàng miếng SJC lại tăng đáng kể, gần 3 triệu đồng/lượng ([VnExpress, 2025b]).  Chênh lệch giá giữa vàng miếng và giá vàng thế giới cũng nới rộng, có lúc lên đến gần 20 triệu đồng/lượng ([VnExpress, 2025c]). Các chuyên gia dự báo về khả năng giảm giá trong tuần tiếp theo ([VnExpress, 2025d]). Giá vàng thế giới cũng có sự biến động, với xu hướng giảm trở lại vào tháng 5/2025 ([VnExpress, 2025e]), nhưng sau đó lại tăng mạnh ([VnExpress, 2025f]).  Các yếu tố như đồng đô la yếu, căng thẳng thương mại, và tình hình địa chính trị toàn cầu (xung đột ở châu Âu, Trung Đông) có ảnh hưởng đáng kể đến giá vàng ([VnExpress, 2025a]; [Nguyễn, 2024]).  Trong dài hạn, các chuyên gia UOB dự báo giá vàng có thể lên 3.000 USD/ounce, do nhiều yếu tố thúc đẩy ([Nguyễn, 2024]). Các sự kiện như khủng bố 11/9/2001, đại dịch COVID-19 và chiến tranh Nga-Ukraine cũng góp phần làm tăng giá vàng ([Đức Anh, 2024]).",
+    "reference": {
+        "1": {
+            "title": "Giá vàng hôm nay 22/4: Lập đỉnh mới",
+            "url": "https://vnexpress.net/gia-vang-mieng-sjc-lap-dinh-moi-121-trieu-dong-mot-luong-4877056.html"
+        },
+        "2": {
+            "title": "Giá vàng miếng SJC tăng gần 3 triệu đồng một lượng",
+            "url": "https://vnexpress.net/gia-vang-mieng-sjc-tang-gan-3-trieu-dong-mot-luong-4886685.html"
+        },
+        "3": {
+            "title": "Giá vàng hôm nay: Chênh lệch vàng miếng và thế giới lên gần 20 triệu đồng một lượng",
+            "url": "https://vnexpress.net/chenh-lech-vang-mieng-va-the-gioi-len-gan-20-trieu-dong-mot-luong-4886293.html"
+        },
+        "4": {
+            "title": "Giá vàng hôm nay: Chuyên gia dự báo giá vàng giảm tuần tới",        
+            "url": "https://vnexpress.net/chuyen-gia-du-bao-gia-vang-giam-tuan-toi-4887411.html"
+        },
+        "5": {
+            "title": "Giá vàng hôm nay ngày 17/5: Giá vàng thế giới giảm trở lại",        
+            "url": "https://vnexpress.net/gia-vang-the-gioi-giam-tro-lai-4887088.html"    
+        },
+        "6": {
+            "title": "Giá vàng hôm nay ngày 21/5: Giá vàng thế giới tăng mạnh",
+            "url": "https://vnexpress.net/gia-vang-the-gioi-lay-lai-moc-3-300-usd-4888520.html"
+        },
+        "7": {
+            "title": "Chuyên gia UOB dự báo: Giá vàng có khả năng lên 3.000 USD/ounce trong dài hạn - Nhịp sống kinh tế Việt Nam & Thế giới",
+            "url": "https://vneconomy.vn/chuyen-gia-uob-du-bao-gia-vang-co-kha-nang-len-3-000-usd-ounce-trong-dai-han.htm"
+        },
+        "8": {
+            "title": "Giá vàng dưới các thời tổng thống Mỹ - Nhịp sống kinh tế Việt Nam & Thế giới",
+            "url": "https://vneconomy.vn/gia-vang-duoi-cac-thoi-tong-thong-my.htm"        
+        }
+    }
 }
+}
+
+// This is a example of apu for synthesis
 // CODE: 200 OK
 ```
 
@@ -447,34 +486,66 @@ To inspect the details of the API Structure, click on the toggle to read more on
 **Success**
 ```json
 {
-    "Tổng Hợp Cuối Cùng": string,
-    "Kết luận": string,
-    "Phân tích bằng chứng": string,
-    "Mức độ tin cậy": string,
-    "Giải thích": string,
-    "Lời khuyên cho người dùng về cách nhìn nhận hiện tại": string,
+  "fact-check": {
     "Danh sách các dẫn chứng": {
-        "[1]": {
-            "title": string,
-            "publisher": string,
-            "url": string
-        },
-        "[2]": {
-            "title": string,
-            "publisher": string,
-            "url": string
-        },
-        "[3]": {
-            "title": string,
-            "publisher": string,
-            "url": string
-        }
-        
-        //and more
-    }
+      "[1]": {
+        "publisher": string,
+        "title": string,
+        "url": string
+      },
+      "[2]": {
+        "publisher": string,
+        "title": string,
+        "url": string
+      },
+      "[3]": {
+        "publisher": string,
+        "title": string,
+        "url": string
+      }
+    },
+    "Giải thích": string,
+    "Kết luận": string,
+    "Lời khuyên cho người dùng về cách nhìn nhận hiện tại": string,
+    "Mức độ tin cậy": "C3 - Khá Đáng Tin Cậy và Có Thể Đúng",
+    "Phân tích bằng chứng": string,
+    "Tổng Hợp Cuối Cùng": string
+  }
 }
 // CODE: 200
 ```
+#### Example
+```json
+{
+	"fact-check": {
+		"Danh sách các dẫn chứng": {
+			"[1]": {
+				"publisher": "Nhịp sống kinh tế Việt Nam & Thế giới",
+				"title": "Đà tăng giá chung cư Hà Nội chững lại trong quý 1/2025 - Nhịp sống kinh tế Việt Nam & Thế giới",
+				"url": "https://vneconomy.vn/da-tang-gia-chung-cu-ha-noi-chung-lai-trong-quy-1-2025.htm"
+			},
+			"[2]": {
+				"publisher": "Nhịp sống kinh tế Việt Nam & Thế giới",
+				"title": "Giá chung cư tại Hà Nội tiếp tục “bay bổng” - Nhịp sống kinh tế Việt Nam & Thế giới",
+				"url": "https://vneconomy.vn/gia-chung-cu-tai-ha-noi-tiep-tuc-bay-bong.htm"
+			},
+			"[3]": {
+				"publisher": "VnExpress",
+				"title": "Khác biệt giữa phở Nam Định và phở Hà Nội - Báo VnExpress Du lịch",
+				"url": "https://vnexpress.net/khac-biet-giua-pho-nam-dinh-va-pho-ha-noi-4780799.html"
+			}
+		},
+		"Giải thích": "Đánh giá là C3 vì các nguồn tin là VnEconomy và VnExpress (khá đáng tin cậy - C). Bài viết [1] cung cấp thông tin từ CBRE, một nguồn đáng tin cậy trong lĩnh vực bất động sản, về thị trường căn hộ Hà Nội trong quý 1/2025. Tuy nhiên, thông tin này có thể không hoàn toàn chính xác (có thể đúng - 3) do phụ thuộc vào dữ liệu thu thập và phân tích của CBRE. Bằng chứng [2] cũng đến từ CBRE, tuy nhiên thông tin không trực tiếp liên quan đến thời điểm quý 1/2025. Bằng chứng [3] không liên quan đến bất động sản.",
+		"Kết luận": "Trung lập",
+		"Lời khuyên cho người dùng về cách nhìn nhận hiện tại": "Thông tin về sự chững lại của giá chung cư Hà Nội trong quý 1/2025 cần được xem xét kỹ lưỡng. Hãy tham khảo thêm các nguồn tin khác từ các công ty nghiên cứu thị trường bất động sản và các chuyên gia để có cái nhìn toàn diện hơn.",
+		"Mức độ tin cậy": "C3 - Khá Đáng Tin Cậy và Có Thể Đúng",
+		"Phân tích bằng chứng": "Bằng chứng [1] trích dẫn thông tin từ CBRE về thị trường căn hộ Hà Nội trong quý 1/2025, đề cập đến việc nguồn cung mới giảm và tốc độ tăng giá chững lại. Bằng chứng [2] cũng trích dẫn thông tin từ CBRE, cho thấy giá chung cư Hà Nội đang tăng, tuy nhiên không trực tiếp đề cập đến quý 1/2025. Bằng chứng [3] thảo luận về sự khác biệt giữa phở Hà Nội và Nam Định, không liên quan đến mệnh đề. Do đó, mặc dù có bằng chứng về sự chững lại của giá chung cư, các bằng chứng không đủ mạnh để kết luận một cách dứt khoát về sự việc này.",
+"Tổng Hợp Cuối Cùng": "Các bằng chứng cung cấp thông tin về thị trường bất động sản Hà Nội, bao gồm nguồn cung, giá cả và xu hướng. Chúng cũng đưa ra một số so sánh về đặc điểm của phở Hà Nội và Nam Định. Tuy nhiên, không có bằng chứng nào trực tiếp xác nhận hay bác bỏ mệnh đề về sự chững lại của giá chung cư Hà Nội trong quý 1/2025."
+	}
+}
+```
+
+
 
 **Invalid request format**
 ```json
@@ -638,16 +709,20 @@ To inspect the details of the API Structure, click on the toggle to read more on
 **Success**
 ```json
 {
-    "Loại thiên kiến": string,
-    "Mức độ ảnh hưởng": string,
-    "Phân tích ngắn gọn": string,
-    "Câu hỏi phản biện": [
-        string,
-        string,
-        string,
-        string,...
-    ]
+    "bias-check": {
+	    "Câu hỏi phản biện": [
+        "What sources are being omitted that could offer a different perspective?",
+        "Is the argument presented in this article supported by factual evidence, or does it rely on emotional appeal?",
+        "What are the potential consequences of framing this issue in this particular way?",
+        "How could the article be rewritten to present a more balanced view?"
+      ],
+      "Loại thiên kiến": string,
+      "Mức độ ảnh hưởng": string, 
+      "Phân tích ngắn gọn": string,
+       
+    }
 }
+// This is example, Câu hỏi phản biện ís a array òf string
 // CODE: 200
 ```
 
