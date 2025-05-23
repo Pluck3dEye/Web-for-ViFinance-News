@@ -138,7 +138,7 @@ function LoginForm({ onSwitch, onForgot, onOtpRequired }) {
       return;
     }
     window.google.accounts.id.initialize({
-      client_id: "YOUR_GOOGLE_CLIENT_ID", // <-- Replace with your Google client ID
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID, // <-- Replace with your Google client ID
       callback: async (response) => {
         if (!response.credential) {
           setError("Google login failed.");
@@ -164,7 +164,12 @@ function LoginForm({ onSwitch, onForgot, onOtpRequired }) {
         setGoogleLoading(false);
       },
     });
-    window.google.accounts.id.prompt();
+    window.google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        setError("Google login popup was closed or suppressed. Please try again later or use another login method.");
+        setGoogleLoading(false);
+      }
+    });
   };
 
   return (
