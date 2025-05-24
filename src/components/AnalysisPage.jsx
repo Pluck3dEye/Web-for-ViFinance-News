@@ -36,22 +36,7 @@ export default function AnalysisPage() {
 
     // Sequentially run all 5 requests, with 15s delay between each
     const runSequentialAnalysis = async () => {
-      // 1. Summary
-      const summaryRes = await safeFetch(`${API_BASES.summariser}/api/summarize/`, { url: article.url });
-      setSummary(summaryRes._notFound ? null : summaryRes.summary);
-      await new Promise(r => setTimeout(r, 15000));
-
-      // 2. Toxicity
-      const toxicityRes = await safeFetch(`${API_BASES.analysis}/api/toxicity_analysis/`, { url: article.url });
-      setToxicity(toxicityRes._notFound ? null : toxicityRes.toxicity_analysis);
-      await new Promise(r => setTimeout(r, 15000));
-
-      // 3. Sentiment
-      const sentimentRes = await safeFetch(`${API_BASES.analysis}/api/sentiment_analysis/`, { url: article.url });
-      setSentiment(sentimentRes._notFound ? null : sentimentRes.sentiment_analysis);
-      await new Promise(r => setTimeout(r, 15000));
-
-      // 4. Factcheck
+      // 1. Factcheck
       const factcheckRes = await safeFetch(`${API_BASES.analysis}/api/factcheck/`, { url: article.url });
       let factObj = null;
       let factRefs = null;
@@ -65,9 +50,9 @@ export default function AnalysisPage() {
       }
       setFactcheck(factObj);
       setFactReferences(factRefs);
-      await new Promise(r => setTimeout(r, 15000));
+      // await new Promise(r => setTimeout(r, 20000));
 
-      // 5. Bias
+      // 2. Bias
       const biasRes = await safeFetch(`${API_BASES.analysis}/api/biascheck/`, { url: article.url });
       let biasObj = null;
       if (biasRes && biasRes.data && biasRes.data["bias-check"]) {
@@ -78,6 +63,21 @@ export default function AnalysisPage() {
         biasObj = { message: biasRes.message };
       }
       setBias(biasObj);
+      // await new Promise(r => setTimeout(r, 15000));
+
+      // 3. Summary
+      const summaryRes = await safeFetch(`${API_BASES.summariser}/api/summarize/`, { url: article.url });
+      setSummary(summaryRes._notFound ? null : summaryRes.summary);
+      await new Promise(r => setTimeout(r, 10000));
+
+      // 4. Toxicity
+      const toxicityRes = await safeFetch(`${API_BASES.analysis}/api/toxicity_analysis/`, { url: article.url });
+      setToxicity(toxicityRes._notFound ? null : toxicityRes.toxicity_analysis);
+      await new Promise(r => setTimeout(r, 10000));
+
+      // 5. Sentiment
+      const sentimentRes = await safeFetch(`${API_BASES.analysis}/api/sentiment_analysis/`, { url: article.url });
+      setSentiment(sentimentRes._notFound ? null : sentimentRes.sentiment_analysis);
 
       // If all failed
       if ([summaryRes, toxicityRes, sentimentRes, factcheckRes, biasRes].every(r => r._notFound)) {
@@ -151,7 +151,7 @@ export default function AnalysisPage() {
                 {Object.entries(parsedToxicity).map(([label, value]) => (
                   <li key={label} className="flex justify-between">
                     <span className="font-medium text-primary-a0 dark:text-primary-a20">{label}:</span>
-                    <span>{(value * 100).toFixed(2)}%</span>
+                    <span>{(value)} / 10</span>
                   </li>
                 ))}
               </ul>
@@ -166,13 +166,16 @@ export default function AnalysisPage() {
               <span className="text-gray-400">Getting result...</span>
             ) : sentiment ? (
               <div>
-                <div className="font-medium text-primary-a0 dark:text-primary-a20">
-                  Mức độ cảm xúc:{" "}
+                <div className="flex justify-between">
+                  <span className="font-medium text-primary-a0 dark:text-primary-a20">Loại cảm xúc:</span>
                   <span className={getSentimentInfo(sentiment.sentiment_label).color}>
                     {getSentimentInfo(sentiment.sentiment_label).vi}
                   </span>
                 </div>
-                <div>Độ tin cậy: {(sentiment.sentiment_score * 100).toFixed(2)}%</div>
+                <div className="flex justify-between">
+                  <span className="font-medium text-primary-a0 dark:text-primary-a20" >Cường độ cảm xúc: </span> 
+                  <span>{(sentiment.sentiment_score)} / 10</span>
+                </div>
               </div>
             ) : (
               <span>No sentiment analysis available.</span>
@@ -187,16 +190,18 @@ export default function AnalysisPage() {
                   <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Loại thiên kiến:</span> {bias["Loại thiên kiến"] || bias["bias_type"]}</div>
                   <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Mức độ ảnh hưởng:</span> {bias["Mức độ ảnh hưởng"] || bias["impact_level"]}</div>
                   <div className="mb-2"><span className="font-medium text-primary-a0 dark:text-primary-a20">Phân tích ngắn gọn:</span> {bias["Phân tích ngắn gọn"] || bias["analysis"]}</div>
-                  {Array.isArray(bias["Câu hỏi phản biện"] || bias["socratic_questions"]) && (
-                    <div className="mt-2">
-                      <div className="font-medium mb-1 text-primary-a0 dark:text-primary-a20">Câu hỏi phản biện:</div>
-                      <ul className="list-disc list-inside text-sm space-y-1">
-                        {(bias["Câu hỏi phản biện"] || bias["socratic_questions"]).map((q, i) => (
-                          <li key={i}>{q}</li>
-                        ))}
-                      </ul>
-                    </div>
+                  <div className="mt-2">
+                  <div className="font-medium mb-1 text-primary-a0 dark:text-primary-a20">Câu hỏi phản biện:</div>
+                  {Array.isArray(bias["Câu hỏi phản biện"] || bias["socratic_questions"]) && (bias["Câu hỏi phản biện"] || bias["socratic_questions"]).length > 0 ? (
+                    <ul className="list-disc list-inside text-sm space-y-1">
+                      {(bias["Câu hỏi phản biện"] || bias["socratic_questions"]).map((q, i) => (
+                        <li key={i}>{q}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <span>Không</span>
                   )}
+                </div>
                 </div>
               ) : bias["message"] ? (
                 <span>{bias["message"]}</span>

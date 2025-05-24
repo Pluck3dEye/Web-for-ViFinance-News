@@ -87,17 +87,17 @@ export default function SavedArticles() {
                         <span key={i} className="bg-lime-100 dark:bg-lime-700 text-lime-700 dark:text-lime-100 px-2 py-1 rounded text-xs">{tag}</span>
                       ))}
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">
+                    {/* <p className="text-xs text-gray-400 mt-1">
                       {article.author} | {article.date_publish}
-                    </p>
+                    </p> */}
                     {/* Upvotes display */}
-                    {typeof article.upvotes !== 'undefined' && (
+                    {/* {typeof article.upvotes !== 'undefined' && (
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-lime-500 font-bold">▲</span>
                         <span className="text-sm font-semibold">{article.upvotes}</span>
                         <span className="text-xs text-gray-400">Upvotes</span>
                       </div>
-                    )}
+                    )} */}
                   </div>
                   {article.url && (
                     <a

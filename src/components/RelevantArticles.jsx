@@ -40,9 +40,34 @@ export default function RelevantArticles() {
       body: JSON.stringify({ query })
     })
       .then(res => res.json())
-      .then(data => {
+      .then(async data => {
         if (data.message === "success" && Array.isArray(data.data)) {
           setArticles(data.data);
+          // Fetch user vote for each article
+          const voteResults = await Promise.all(
+            data.data.map(async (article) => {
+              try {
+                const res = await fetch(`${API_BASES.search}/api/get_user_vote`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  credentials: "include",
+                  body: JSON.stringify({ url: article.url })
+                });
+                const result = await res.json();
+                if (res.ok && typeof result.usr_vote === "number") {
+                  return { url: article.url, vote: result.usr_vote };
+                }
+              } catch {
+                // ignore error, treat as no vote
+              }
+              return { url: article.url, vote: 0 };
+            })
+          );
+          // Set voteMap for all articles
+          setVoteMap(voteResults.reduce((acc, cur) => {
+            acc[cur.url] = { vote: cur.vote, loading: false, error: '' };
+            return acc;
+          }, {}));
         } else {
           setError("No articles found.");
         }
@@ -116,28 +141,70 @@ export default function RelevantArticles() {
 
   // Vote handler (type: 1 for up, -1 for down)
   const handleVote = async (article, type) => {
-    setVoteMap((prev) => ({ ...prev, [article.url]: { ...(prev[article.url] || {}), loading: true, error: '' } }));
+    setVoteMap((prev) => ({
+      ...prev,
+      [article.url]: { ...(prev[article.url] || {}), loading: true, error: '' }
+    }));
     const endpoint = type === 1 ? "/api/get_up_vote" : "/api/get_down_vote";
     try {
-      console.log("Request body:", JSON.stringify({ url: article.url, vote_type: type }));
       const res = await fetch(`${API_BASES.search}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ url: article.url })
+        body: JSON.stringify({ url: article.url, vote_type: type })
       });
       const data = await res.json();
-      if (res.ok && data.vote_type === type) {
-        setVoteMap((prev) => ({ ...prev, [article.url]: { loading: false, vote: type, error: '' } }));
-        // Optionally update upvotes count in UI
-        setArticles((prev) => prev.map(a => a.url === article.url ? { ...a, upvotes: (a.upvotes || 0) + (type === 1 ? 1 : type === -1 && a.upvotes > 0 ? -1 : 0) } : a));
+      if (res.ok && typeof data.vote_type === "number") {
+        // After voting, fetch the latest upvote count
+        let upvotes = article.upvotes || 0;
+        try {
+          const upvoteRes = await fetch(`${API_BASES.search}/api/get_total_upvotes`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: article.url })
+          });
+          const upvoteData = await upvoteRes.json();
+          if (upvoteRes.ok && typeof upvoteData.upvotes === "number") {
+            upvotes = upvoteData.upvotes;
+          }
+        } catch {
+          // ignore error, keep previous upvotes
+        }
+        setVoteMap((prev) => ({
+          ...prev,
+          [article.url]: { loading: false, vote: data.vote_type, error: '' }
+        }));
+        setArticles((prev) =>
+          prev.map(a =>
+            a.url === article.url
+              ? { ...a, upvotes }
+              : a
+          )
+        );
       } else {
-        setVoteMap((prev) => ({ ...prev, [article.url]: { loading: false, vote: prev[article.url]?.vote || 0, error: data?.error || 'Vote failed' } }));
+        setVoteMap((prev) => ({
+          ...prev,
+          [article.url]: {
+            loading: false,
+            vote: prev[article.url]?.vote || 0,
+            error: data?.error || 'Vote failed'
+          }
+        }));
       }
     } catch {
-      setVoteMap((prev) => ({ ...prev, [article.url]: { loading: false, vote: prev[article.url]?.vote || 0, error: 'Network error' } }));
+      setVoteMap((prev) => ({
+        ...prev,
+        [article.url]: {
+          loading: false,
+          vote: prev[article.url]?.vote || 0,
+          error: 'Network error'
+        }
+      }));
     }
-    setTimeout(() => setVoteMap((prev) => ({ ...prev, [article.url]: { ...prev[article.url], error: '' } })), 2000);
+    setTimeout(() => setVoteMap((prev) => ({
+      ...prev,
+      [article.url]: { ...prev[article.url], error: '' }
+    })), 2000);
   };
 
   // Helper to parse synthesis text and references, and render citations
@@ -227,6 +294,7 @@ export default function RelevantArticles() {
             const voteLoading = voteMap[article.url]?.loading;
             const voteError = voteMap[article.url]?.error;
             const defaultImg = "https://placehold.co/600x400";
+            const displayedUpvotes = article.upvotes || 0;
             return (
               <div
                 key={article.url || idx}
@@ -272,7 +340,7 @@ export default function RelevantArticles() {
                     {/* Upvotes display */}
                     <div className="flex items-center gap-2 mt-1">
                       <FaThumbsUp className="text-lime-500" />
-                      <span className="text-sm font-semibold">{article.upvotes || 0}</span>
+                      <span className="text-sm font-semibold">{displayedUpvotes}</span>
                       <span className="text-xs text-gray-400">Upvotes</span>
                     </div>
                   </div>
@@ -289,7 +357,7 @@ export default function RelevantArticles() {
                     <button
                       className={`flex items-center px-2 py-1 rounded text-sm border ${vote === 1 ? 'bg-lime-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'} hover:bg-lime-600 disabled:opacity-60`}
                       onClick={() => handleVote(article, 1)}
-                      disabled={voteLoading || vote === 1}
+                      disabled={voteLoading}
                       title="Upvote"
                     >
                       <FaThumbsUp className="mr-1" /> Upvote
@@ -297,7 +365,7 @@ export default function RelevantArticles() {
                     <button
                       className={`flex items-center px-2 py-1 rounded text-sm border ${vote === -1 ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'} hover:bg-red-600 disabled:opacity-60`}
                       onClick={() => handleVote(article, -1)}
-                      disabled={voteLoading || vote === -1}
+                      disabled={voteLoading}
                       title="Downvote"
                     >
                       <FaThumbsDown className="mr-1" /> Downvote

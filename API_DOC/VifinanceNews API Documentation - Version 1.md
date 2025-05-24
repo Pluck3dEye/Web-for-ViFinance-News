@@ -48,7 +48,6 @@ To inspect the details of the API Structure, click on the toggle to read more on
         "string", "string", "string", "string"
       ],
       "upvotes": 0,
-      "vote_type": 0
     }
     // ...
   ]
@@ -316,6 +315,132 @@ To inspect the details of the API Structure, click on the toggle to read more on
   "message": "Error message here"
 }
 ```
+
+### `/api/get_user_vote`
+**Desc**: Return the type of user vote. There are 3 type: upvote is 1, neutral or not vote is 0, downvote is -1  
+**URL:** http://localhost:7001/api/get_user_vote  
+**Method:** POST
+#### Input
+```json 
+{
+  "url": "https://example.com/news/article",
+  
+}
+```
+#### ✅ Success Response
+
+```json
+{
+  "usr_vote": int // 0, 1, -1
+}
+// CODE: 200 OK
+```
+
+---
+
+#### ❗ Error Responses
+
+1. **Missing the SESSION_ID**  
+   **#CODE:** `401 Please log in to continue`
+   
+```json
+{
+  "error": "Please log in to continue"
+}
+```
+
+2. **Internal Server Error**  
+   **#CODE:** `500 Internal Server Error`
+   
+```json
+{
+  "status": "error",
+  "message": "Error message here"
+}
+```
+
+3. **Missing the SESSION_ID**  
+   **#CODE:** `401 Missing Session ID - Login Again`
+   
+```json
+{
+  "error": "Missing Session ID - Login Again"
+}
+```
+
+4. **Missing the user_id**  
+   **#CODE:** `401 Missing the user_id`
+   
+```json
+{
+  "error": "Missing User ID - Login Again"
+}
+```
+
+5. **Missing the vote_type**  
+   **#CODE:** `500 Unable to get the vote`
+   
+```json
+{
+  "status": "error", 
+  "message": "Unable to get the vote"
+}
+```
+
+
+### `/api/get_total_upvotes`
+- **Desc:** Used for update the upvote count when user click upvote or downvote
+- **URL:** `http://localhost:7001/api/get_total_upvotes`
+- **Method:** `POST`
+
+#### Input JSON Format
+
+```json
+{
+  "url": "https://example.com/news/article",
+  
+}
+```
+#### ✅ Success Response
+
+```json
+{
+  "upvotes": int 
+}
+```
+#### ❗ Error Responses
+
+1. **Unable to get the articles data Error**  
+   **#CODE:** `501 Unable to get the articles data Error`
+   
+```json
+{
+  "status": "error", 
+  "message": "Unable to get the articles data"
+}
+```
+
+2. **Internal Server Error**  
+   **#CODE:** `500 Internal Server Error`
+   
+```json
+{
+  "status": "error",
+  "message": "Error message here"
+}
+```
+
+
+3. **upvotes data is not exist**  
+   **#CODE:** `502 Internal Server Error`
+   
+```json
+{
+  "status": "error", 
+  "message": "upvotes data is not exist"
+}
+```
+
 
 ---
 
