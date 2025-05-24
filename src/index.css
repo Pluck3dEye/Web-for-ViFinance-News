@@ -6,7 +6,7 @@
 
 @font-face {
      font-family: 'Poppins';
-     src: url('./src/fonts/Poppins-Medium.ttf') format('tff');     
+     src: url('../public/fonts/Poppins-Medium.ttf') format('tff');     
      font-weight: normal;
      font-style: normal;
 }
