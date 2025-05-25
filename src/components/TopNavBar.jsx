@@ -35,12 +35,12 @@ function TopNavBar({ onMenuClick, menuButtonRef, visible }) {
           >
             Home
           </button>
-          <button
+          {/* <button
             className="ml-2 px-4 py-2 bg-primary-a0 text-black dark:text-white rounded hover:bg-primary-a20 active:bg-primary-a30 transition"
             onClick={() => navigate('/guide')} type="button"
           >
             Guide
-          </button>
+          </button> */}
           <button
             className="ml-2 px-4 py-2 bg-primary-a0 text-black dark:text-white rounded hover:bg-primary-a20 active:bg-primary-a30 transition"
             onClick={() => navigate('/about-us')} type="button"

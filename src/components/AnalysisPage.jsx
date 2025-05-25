@@ -50,7 +50,7 @@ export default function AnalysisPage() {
       }
       setFactcheck(factObj);
       setFactReferences(factRefs);
-      // await new Promise(r => setTimeout(r, 20000));
+      await new Promise(r => setTimeout(r, 15000));
 
       // 2. Bias
       const biasRes = await safeFetch(`${API_BASES.analysis}/api/biascheck/`, { url: article.url });
@@ -63,17 +63,17 @@ export default function AnalysisPage() {
         biasObj = { message: biasRes.message };
       }
       setBias(biasObj);
-      // await new Promise(r => setTimeout(r, 15000));
+      await new Promise(r => setTimeout(r, 15000));
 
       // 3. Summary
       const summaryRes = await safeFetch(`${API_BASES.summariser}/api/summarize/`, { url: article.url });
       setSummary(summaryRes._notFound ? null : summaryRes.summary);
-      await new Promise(r => setTimeout(r, 10000));
+      await new Promise(r => setTimeout(r, 15000));
 
       // 4. Toxicity
       const toxicityRes = await safeFetch(`${API_BASES.analysis}/api/toxicity_analysis/`, { url: article.url });
       setToxicity(toxicityRes._notFound ? null : toxicityRes.toxicity_analysis);
-      await new Promise(r => setTimeout(r, 10000));
+      await new Promise(r => setTimeout(r, 15000));
 
       // 5. Sentiment
       const sentimentRes = await safeFetch(`${API_BASES.analysis}/api/sentiment_analysis/`, { url: article.url });
