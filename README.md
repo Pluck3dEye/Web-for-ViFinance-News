@@ -58,6 +58,18 @@ npm run dev # Web
 flask run # Server
 ```
 
+- Build a distribution for deployment
+```bash
+npm run build
+```
+
+- Server the `/dist` folder
+```dotnetcli
+npm install -g serve // if not installed yet
+serve -s dist
+```
+! For deployment, upload the contents of dist to your web server or a static hosting service (Netlify, Vercel, etc.).
+
 # Log
 
 - [Log fix 1 6/5/2025](https://gist.github.com/Blindn3ss/e2fbb6ecc9437e8c0ffe321314612521) 
